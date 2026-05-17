@@ -1,15 +1,54 @@
 import { DashboardLayout } from '@/layouts/DashboardLayout';
+import { TaskList } from '@/components/tasks/TaskList';
+import { TaskFilters } from '@/components/tasks/TaskFilters';
+import { SkeletonCard } from '@/components/feedback/SkeletonCard';
+import { AlertBanner } from '@/components/feedback/AlertBanner';
+import { useTasks } from '@/hooks/useTasks';
 
 export const TasksPage = () => {
+  const { tasks, totalTasks, loading, error, search, setSearch, status, setStatus, priority, setPriority, sortBy, setSortBy, sortOrder, setSortOrder, page, limit, setPage, editTask, removeTask } = useTasks();
+
   return (
     <DashboardLayout>
-      <div className="p-gutter max-w-7xl w-full mx-auto space-y-stack-lg relative min-h-screen pt-10">
-        <h2 className="font-display-lg text-display-lg text-on-surface">My Tasks</h2>
-        <div className="bg-surface-container-low border border-outline-variant/10 rounded-xl p-10 flex flex-col items-center justify-center text-center opacity-70 min-h-100">
-          <span className="material-symbols-outlined text-[48px] text-primary mb-4">checklist</span>
-          <p className="font-headline-sm text-headline-sm text-on-surface">Dedicated Task View Coming Soon</p>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-md mt-2">Manage all your personalized tasks, bulk actions, and deep filtering here in a future update.</p>
+      <div className="p-gutter max-w-7xl w-full mx-auto space-y-stack-lg relative min-h-screen">
+        {error && <AlertBanner message={error} />}
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-10">
+          <h2 className="font-display-lg text-display-lg text-on-surface">My Tasks</h2>
+          <TaskFilters
+            search={search}
+            status={status}
+            priority={priority}
+            onSearch={setSearch}
+            onStatus={setStatus}
+            onPriority={setPriority}
+            sortBy={sortBy}
+            onSortBy={setSortBy}
+            sortOrder={sortOrder}
+            onSortOrder={setSortOrder}
+          />
         </div>
+
+        {loading && tasks.length === 0 ? (
+          <div className="grid gap-3" aria-live="polite">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : (
+          <div className={`transition-opacity duration-300 relative ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+            <TaskList
+              tasks={tasks}
+              totalTasks={totalTasks}
+              page={page}
+              limit={limit}
+              onPageChange={setPage}
+              onToggleComplete={(task) => editTask(task.id, { completed: !task.completed })}
+              onDelete={removeTask}
+              onEdit={editTask}
+            />
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

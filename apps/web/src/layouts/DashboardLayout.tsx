@@ -11,7 +11,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   
   const [localSearch, setLocalSearch] = useState(searchParams.get('search') || '');
 
@@ -95,37 +94,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <button 
-                onClick={() => setNotificationsOpen(!isNotificationsOpen)}
-                className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-[0.98] relative"
-              >
-                <span className="material-symbols-outlined">notifications</span>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-              </button>
 
-              {isNotificationsOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setNotificationsOpen(false)}></div>
-                  <div className="absolute top-12 right-0 w-80 bg-surface border border-outline-variant/20 rounded-xl shadow-2xl z-50 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-outline-variant/10 bg-surface-container-lowest flex justify-between items-center">
-                      <h4 className="font-headline-sm text-headline-sm">Notifications</h4>
-                      <span className="font-label-sm text-label-sm bg-primary text-on-primary px-2 py-0.5 rounded-full">3 New</span>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {[1,2,3].map((i) => (
-                        <div key={i} className="px-4 py-3 border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors cursor-pointer">
-                          <p className="font-body-sm text-body-sm text-on-surface">Task <span className="font-medium text-primary">Q3 Report</span> is approaching its deadline.</p>
-                          <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">2 hours ago</p>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="w-full py-2 text-center text-primary font-label-md text-label-md hover:bg-surface-container-low transition-colors">Mark all as read</button>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="h-8 w-px bg-outline-variant/20 mx-2 hidden md:block"></div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden lg:block">
                 <p className="font-body-md text-body-md text-on-surface leading-none">{user?.name || 'User'}</p>
