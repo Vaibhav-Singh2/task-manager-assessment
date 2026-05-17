@@ -12,7 +12,7 @@ const createTestStore = (token: string | null) =>
     reducer: { auth: authReducer, tasks: taskReducer },
     preloadedState: {
       auth: { token, user: token ? { id: '1', name: 'Jane', email: 'jane@example.com' } : null },
-      tasks: { tasks: [], loading: false }
+      tasks: { tasks: [], totalTasks: 0, loading: false }
     }
   });
 
@@ -42,6 +42,6 @@ describe('App routing', () => {
       </Provider>
     );
 
-    expect(getByText(/create task/i)).toBeInTheDocument();
+    expect(getByText(/current tasks/i)).toBeInTheDocument();
   });
 });

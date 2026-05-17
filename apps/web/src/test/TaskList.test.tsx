@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TaskList } from '@/components/tasks/TaskList';
 import { Task } from '@/types/task';
@@ -19,15 +19,34 @@ describe('TaskList', () => {
     const onToggleComplete = vi.fn().mockResolvedValue(undefined);
     const onDelete = vi.fn().mockResolvedValue(undefined);
     const onEdit = vi.fn().mockResolvedValue(undefined);
+    const onPageChange = vi.fn();
 
-    const { getByRole, getByText } = render(
-      <TaskList tasks={[sampleTask]} onToggleComplete={onToggleComplete} onDelete={onDelete} onEdit={onEdit} />
+    const { getByText, getByRole } = render(
+      <TaskList 
+        tasks={[sampleTask]} 
+        totalTasks={1} 
+        page={1} 
+        limit={10} 
+        onPageChange={onPageChange} 
+        onToggleComplete={onToggleComplete} 
+        onDelete={onDelete} 
+        onEdit={onEdit} 
+      />
     );
 
-    getByRole('button', { name: /toggle completion for write tests/i }).click();
-    getByRole('button', { name: /delete write tests/i }).click();
+    // Open slide-over panel by clicking the row or "more_vert" button
+    const row = getByText('Write tests');
+    fireEvent.click(row);
 
-    expect(getByText(/write tests/i)).toBeInTheDocument();
+    // Now click the buttons in the details panel
+    const completeBtn = getByText('Complete Task');
+    fireEvent.click(completeBtn);
+
+    // Re-open pane to test delete
+    fireEvent.click(row);
+    const deleteBtn = getByText('Delete Task');
+    fireEvent.click(deleteBtn);
+
     expect(onToggleComplete).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledWith('task-1');
   });

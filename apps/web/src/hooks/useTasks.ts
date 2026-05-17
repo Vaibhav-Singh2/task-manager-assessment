@@ -13,10 +13,10 @@ export const useTasks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get('search') || '';
-  const status = (searchParams.get('status') as TaskStatusFilter) || 'all';
-  const priority = (searchParams.get('priority') as TaskPriority | '') || '';
-  const sortBy = (searchParams.get('sortBy') as 'dueDate' | 'createdAt') || 'dueDate';
-  const sortOrder = (searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
+  const status = (searchParams.get('status') || 'all') as TaskStatusFilter;
+  const priority = (searchParams.get('priority') || '') as TaskPriority | '';
+  const sortBy = (searchParams.get('sortBy') || 'dueDate') as 'dueDate' | 'createdAt';
+  const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = 10;
 
