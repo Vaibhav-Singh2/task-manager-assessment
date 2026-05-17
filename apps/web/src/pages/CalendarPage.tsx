@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useTasks } from '@/hooks/useTasks';
-import { Task } from '@/types/task';
 
 export const CalendarPage = () => {
   const { tasks, loading } = useTasks();

@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
-import { Link, useSearchParams } from 'react-router-dom';
+import { NavLink, useSearchParams } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -52,18 +52,33 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         <nav className="flex-1 flex flex-col gap-1 px-2">
-          <Link to="/dashboard" className="border-l-4 border-inverse-primary bg-secondary-container text-on-secondary-container font-medium flex items-center px-4 py-3 active:scale-[0.97] transform transition-transform">
+          <NavLink 
+            to="/dashboard" 
+            className={({ isActive }) => 
+              `flex items-center px-4 py-3 transform transition-all duration-200 active:scale-[0.97] ${isActive ? 'border-l-4 border-inverse-primary bg-secondary-container text-on-secondary-container font-medium' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'}`
+            }
+          >
             <span className="material-symbols-outlined mr-3">dashboard</span>
             <span className="font-body-md text-body-md">Dashboard</span>
-          </Link>
-          <Link to="/tasks" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
+          </NavLink>
+          <NavLink 
+            to="/tasks" 
+            className={({ isActive }) => 
+              `flex items-center px-4 py-3 transform transition-all duration-200 active:scale-[0.97] ${isActive ? 'border-l-4 border-inverse-primary bg-secondary-container text-on-secondary-container font-medium' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border-l-4 border-transparent'}`
+            }
+          >
             <span className="material-symbols-outlined mr-3">checklist</span>
             <span className="font-body-md text-body-md">My Tasks</span>
-          </Link>
-          <Link to="/calendar" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
+          </NavLink>
+          <NavLink 
+            to="/calendar" 
+            className={({ isActive }) => 
+              `flex items-center px-4 py-3 transform transition-all duration-200 active:scale-[0.97] ${isActive ? 'border-l-4 border-inverse-primary bg-secondary-container text-on-secondary-container font-medium' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border-l-4 border-transparent'}`
+            }
+          >
             <span className="material-symbols-outlined mr-3">calendar_today</span>
             <span className="font-body-md text-body-md">Calendar</span>
-          </Link>
+          </NavLink>
         </nav>
 
         <div className="border-t border-outline-variant/10 pt-stack-md flex flex-col gap-1 px-2">
@@ -115,14 +130,39 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant/10 flex justify-around items-center h-16 z-40">
-        <button className="flex flex-col items-center text-primary font-bold">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-          <span className="text-[10px]">Dashboard</span>
-        </button>
-        <Link to="/tasks" className="flex flex-col items-center text-on-surface-variant">
-          <span className="material-symbols-outlined">checklist</span>
-          <span className="text-[10px]">Tasks</span>
-        </Link>
+        <NavLink 
+          to="/dashboard" 
+          className={({ isActive }) => `flex flex-col items-center ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'}`}
+        >
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>dashboard</span>
+              <span className="text-[10px]">Dashboard</span>
+            </>
+          )}
+        </NavLink>
+        <NavLink 
+          to="/tasks" 
+          className={({ isActive }) => `flex flex-col items-center ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'}`}
+        >
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>checklist</span>
+              <span className="text-[10px]">Tasks</span>
+            </>
+          )}
+        </NavLink>
+        <NavLink 
+          to="/calendar" 
+          className={({ isActive }) => `flex flex-col items-center ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'}`}
+        >
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>calendar_today</span>
+              <span className="text-[10px]">Calendar</span>
+            </>
+          )}
+        </NavLink>
         <button onClick={() => dispatch(logout())} className="flex flex-col items-center text-error">
           <span className="material-symbols-outlined">logout</span>
           <span className="text-[10px]">Logout</span>
