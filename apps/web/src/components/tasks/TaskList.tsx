@@ -1,4 +1,7 @@
-import { Task } from '../../types/task';
+import { Task } from '@/types/task';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface TaskListProps {
   tasks: Task[];
@@ -6,39 +9,42 @@ interface TaskListProps {
   onDelete: (taskId: string) => Promise<void>;
 }
 
-const priorityBadge: Record<string, string> = {
-  low: 'bg-slate-100 text-slate-700',
-  medium: 'bg-amber-100 text-amber-700',
-  high: 'bg-rose-100 text-rose-700'
+const getPriorityBadge = (priority: string): 'low' | 'medium' | 'high' => {
+  if (priority === 'high') return 'high';
+  if (priority === 'low') return 'low';
+  return 'medium';
 };
 
 export const TaskList = ({ tasks, onToggleComplete, onDelete }: TaskListProps) => {
   if (tasks.length === 0) {
-    return <p className="rounded-xl bg-white p-6 text-center text-slate-500 shadow-sm">No tasks found. Create one now.</p>;
+    return <Card><CardContent className="p-6 text-center text-(--color-muted)">No tasks found. Create one now.</CardContent></Card>;
   }
 
   return (
     <ul className="grid gap-3">
       {tasks.map((task) => (
-        <li key={task.id} className="rounded-xl bg-white p-4 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h3 className={`text-lg font-semibold ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
-                {task.title}
-              </h3>
-              {task.description && <p className="mt-1 text-sm text-slate-600">{task.description}</p>}
-            </div>
-            <span className={`rounded-full px-2 py-1 text-xs font-semibold ${priorityBadge[task.priority]}`}>{task.priority}</span>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-slate-500">Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-            <button type="button" onClick={() => onToggleComplete(task)} className="rounded-md border px-2 py-1">
-              {task.completed ? 'Mark pending' : 'Mark complete'}
-            </button>
-            <button type="button" onClick={() => onDelete(task.id)} className="rounded-md bg-red-600 px-2 py-1 text-white">
-              Delete
-            </button>
-          </div>
+        <li key={task.id}>
+          <Card>
+            <CardContent className="space-y-3 pt-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className={`text-lg font-semibold ${task.completed ? 'text-slate-400 line-through' : 'text-(--color-foreground)'}`}>{task.title}</h3>
+                  {task.description && <p className="mt-1 text-sm text-(--color-muted)">{task.description}</p>}
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant={getPriorityBadge(task.priority)}>{task.priority}</Badge>
+                  {task.completed && <Badge variant="success">completed</Badge>}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-(--color-muted)">Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => onToggleComplete(task)}>
+                  {task.completed ? 'Mark pending' : 'Mark complete'}
+                </Button>
+                <Button type="button" variant="destructive" size="sm" onClick={() => onDelete(task.id)}>Delete</Button>
+              </div>
+            </CardContent>
+          </Card>
         </li>
       ))}
     </ul>

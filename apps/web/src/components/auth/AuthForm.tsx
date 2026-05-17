@@ -1,7 +1,9 @@
 import { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { InputField } from '../common/InputField';
-import { useAuthForm } from '../../hooks/useAuthForm';
+import { useAuthForm } from '@/hooks/useAuthForm';
+import { AlertBanner } from '@/components/feedback/AlertBanner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
@@ -15,17 +17,24 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      {mode === 'register' && <InputField id="name" label="Name" value={name} onChange={setName} required />}
-      <InputField id="email" label="Email" type="email" value={email} onChange={setEmail} required />
-      <InputField id="password" label="Password" type="password" value={password} onChange={setPassword} required />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
-      >
+      {mode === 'register' && (
+        <div className="space-y-1">
+          <label htmlFor="name" className="text-sm font-medium">Name</label>
+          <Input id="name" value={name} onChange={(event) => setName(event.target.value)} required />
+        </div>
+      )}
+      <div className="space-y-1">
+        <label htmlFor="email" className="text-sm font-medium">Email</label>
+        <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+      </div>
+      <div className="space-y-1">
+        <label htmlFor="password" className="text-sm font-medium">Password</label>
+        <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+      </div>
+      {error && <AlertBanner message={error} />}
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create account'}
-      </button>
+      </Button>
     </form>
   );
 };

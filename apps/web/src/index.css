@@ -2,13 +2,27 @@
 @import "tw-animate-css";
 
 :root {
+  --color-background: #f2f5ff;
+  --color-foreground: #12223a;
+  --color-surface: #ffffff;
+  --color-surface-soft: #e8eefc;
+  --color-border: #d4def2;
+  --color-muted: #5f728f;
+  --color-primary: #245cff;
+  --color-primary-strong: #1944c9;
+  --color-danger: #d92d49;
+  --color-danger-strong: #a71933;
+
   color-scheme: light;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(150deg, #f3f6ff 0%, #f8fbff 45%, #eefaf4 100%);
-  color: #111827;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, #d9e5ff 0%, transparent 30%),
+    radial-gradient(circle at 85% 85%, #d5f4e5 0%, transparent 26%),
+    linear-gradient(150deg, var(--color-background) 0%, #f9fbff 45%, #eefaf4 100%);
+  color: var(--color-foreground);
+  font-family: "Plus Jakarta Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
