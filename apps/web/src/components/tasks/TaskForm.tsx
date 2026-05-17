@@ -86,13 +86,21 @@ export const TaskForm = ({ onSubmit, onClose }: TaskFormProps) => {
             {/* Priority Segmented Control */}
             <div className="space-y-base">
               <label className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Urgency Profile</label>
-              <div className="flex bg-surface-container-highest p-1 rounded-xl border border-outline-variant/10">
+              <div className="flex relative bg-surface-container-highest p-1 rounded-xl border border-outline-variant/10 z-0">
+                <div 
+                  className="absolute inset-y-1 bg-surface border border-outline-variant/20 rounded-lg shadow-sm transition-all duration-300 ease-out -z-10"
+                  style={{
+                    width: 'calc(33.333% - 2.66px)',
+                    transform: `translateX(${priority === 'low' ? '0' : priority === 'medium' ? '100%' : '200%'})`,
+                    left: '4px'
+                  }}
+                />
                 {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => (
                   <button 
                     key={p}
                     type="button"
                     onClick={() => setPriority(p)}
-                    className={`flex-1 py-stack-sm font-label-sm text-label-sm rounded-lg transition-colors uppercase ${priority === p ? 'bg-surface border border-outline-variant/20 text-on-surface shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+                    className={`flex-1 py-stack-sm font-label-sm text-label-sm rounded-lg transition-colors uppercase ${priority === p ? 'text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}
                   >
                     {p}
                   </button>

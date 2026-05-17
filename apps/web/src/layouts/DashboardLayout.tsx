@@ -21,8 +21,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <span className="material-symbols-outlined text-on-primary">task_alt</span>
             </div>
             <div>
-              <h1 className="font-headline-md text-headline-md tracking-tight text-on-surface">Task Manager</h1>
-              <p className="font-label-sm text-label-sm text-on-surface-variant opacity-70 uppercase">Editorial Workspace</p>
+              <h1 className="font-headline-md text-headline-md tracking-tight text-on-surface">Stitch Editorial</h1>
+              <p className="font-label-sm text-label-sm text-on-surface-variant opacity-70 uppercase">Workspace</p>
             </div>
           </div>
         </div>
@@ -35,10 +35,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <a href="#" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
             <span className="material-symbols-outlined mr-3">checklist</span>
             <span className="font-body-md text-body-md">My Tasks</span>
-          </a>
-          <a href="#" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
-            <span className="material-symbols-outlined mr-3">folder_open</span>
-            <span className="font-body-md text-body-md">Projects</span>
           </a>
           <a href="#" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
             <span className="material-symbols-outlined mr-3">calendar_today</span>
@@ -64,7 +60,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <input className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Search tasks..." type="text"/>
             </div>
             {/* Mobile Title */}
-            <h1 className="md:hidden font-headline-md text-headline-md tracking-tight text-on-surface">Task Manager</h1>
+            <h1 className="md:hidden font-headline-md text-headline-md tracking-tight text-on-surface">Stitch</h1>
           </div>
           
           <div className="flex items-center gap-4">
@@ -99,10 +95,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <button className="flex flex-col items-center text-on-surface-variant">
           <span className="material-symbols-outlined">checklist</span>
           <span className="text-[10px]">Tasks</span>
-        </button>
-        <button className="flex flex-col items-center text-on-surface-variant">
-          <span className="material-symbols-outlined">folder</span>
-          <span className="text-[10px]">Projects</span>
         </button>
         <button onClick={() => dispatch(logout())} className="flex flex-col items-center text-error">
           <span className="material-symbols-outlined">logout</span>
