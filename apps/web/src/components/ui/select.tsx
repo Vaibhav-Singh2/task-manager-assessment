@@ -10,7 +10,7 @@ export const Select = ({ value, onValueChange, children }: SelectProps) => (
   <select
     value={value}
     onChange={(event) => onValueChange(event.target.value)}
-    className="flex h-10 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
+    className="flex h-10 w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm"
   >
     {children}
   </select>
