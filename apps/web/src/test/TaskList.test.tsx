@@ -18,13 +18,14 @@ describe('TaskList', () => {
   it('triggers toggle and delete callbacks', () => {
     const onToggleComplete = vi.fn().mockResolvedValue(undefined);
     const onDelete = vi.fn().mockResolvedValue(undefined);
+    const onEdit = vi.fn().mockResolvedValue(undefined);
 
     const { getByRole, getByText } = render(
-      <TaskList tasks={[sampleTask]} onToggleComplete={onToggleComplete} onDelete={onDelete} />
+      <TaskList tasks={[sampleTask]} onToggleComplete={onToggleComplete} onDelete={onDelete} onEdit={onEdit} />
     );
 
-    getByRole('button', { name: /mark complete/i }).click();
-    getByRole('button', { name: /delete/i }).click();
+    getByRole('button', { name: /toggle completion for write tests/i }).click();
+    getByRole('button', { name: /delete write tests/i }).click();
 
     expect(getByText(/write tests/i)).toBeInTheDocument();
     expect(onToggleComplete).toHaveBeenCalledTimes(1);

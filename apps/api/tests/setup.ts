@@ -1,24 +1,26 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { config } from 'dotenv';
 
-let mongoServer: MongoMemoryServer;
+config();
+const externalMongoUri = process.env.MONGO_URI;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  process.env.MONGO_URI = mongoServer.getUri();
+  if (!externalMongoUri) {
+    throw new Error('MONGO_URI is required for API integration tests.');
+  }
+
   process.env.JWT_SECRET = 'testsecretkeytestsecretkeytestsec';
   process.env.JWT_EXPIRES_IN = '24h';
   process.env.CLIENT_ORIGIN = 'http://localhost:5173';
-});
+}, 120000);
 
 afterAll(async () => {
   await mongoose.disconnect();
-  await mongoServer.stop();
-});
+}, 120000);
 
 beforeEach(async () => {
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(process.env.MONGO_URI ?? externalMongoUri ?? '');
   }
 });
 

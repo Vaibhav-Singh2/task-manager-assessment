@@ -9,14 +9,26 @@
     },
     "lint": {
       "dependsOn": ["^lint"],
-      "env": ["MONGO_URI", "JWT_SECRET", "JWT_EXPIRES_IN", "CLIENT_ORIGIN"]
+      "env": [
+        "MONGO_URI",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CLIENT_ORIGIN",
+        "MONGOMS_DOWNLOAD_DIR"
+      ]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
     },
     "test": {
       "dependsOn": ["^test"],
-      "env": ["MONGO_URI", "JWT_SECRET", "JWT_EXPIRES_IN", "CLIENT_ORIGIN"],
+      "env": [
+        "MONGO_URI",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CLIENT_ORIGIN",
+        "MONGOMS_DOWNLOAD_DIR"
+      ],
       "outputs": ["coverage/**"]
     },
     "dev": {

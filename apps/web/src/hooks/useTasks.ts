@@ -4,6 +4,8 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading, setTasks } from '@/store/slices/taskSlice';
 import { Task, TaskPriority, TaskStatusFilter } from '@/types/task';
 
+const mergeTask = (tasks: Task[], updated: Task): Task[] => tasks.map((task) => (task.id === updated.id ? updated : task));
+
 export const useTasks = () => {
   const dispatch = useAppDispatch();
   const { tasks, loading } = useAppSelector((state) => state.tasks);
@@ -31,31 +33,56 @@ export const useTasks = () => {
   }, [fetchTasks]);
 
   const addTask = async (payload: { title: string; description?: string; priority: TaskPriority; dueDate: string }) => {
+    const previous = tasks;
+    const optimistic: Task = {
+      id: `tmp-${Date.now()}`,
+      title: payload.title,
+      description: payload.description,
+      priority: payload.priority,
+      dueDate: payload.dueDate,
+      completed: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    dispatch(setTasks([optimistic, ...tasks]));
     try {
-      await createTask(payload);
+      const created = await createTask(payload);
+      dispatch(setTasks([created, ...tasks]));
       setError('');
-      await fetchTasks();
     } catch {
+      dispatch(setTasks(previous));
       setError('Unable to create task.');
     }
   };
 
   const editTask = async (taskId: string, payload: Partial<Task>) => {
+    const previous = tasks;
+    const current = tasks.find((task) => task.id === taskId);
+    if (!current) return;
+
+    const optimisticTask: Task = { ...current, ...payload, updatedAt: new Date().toISOString() };
+    dispatch(setTasks(mergeTask(tasks, optimisticTask)));
+
     try {
-      await updateTask(taskId, payload);
+      const updated = await updateTask(taskId, payload);
+      dispatch(setTasks(mergeTask(previous, updated)));
       setError('');
-      await fetchTasks();
     } catch {
+      dispatch(setTasks(previous));
       setError('Unable to update task.');
     }
   };
 
   const removeTask = async (taskId: string) => {
+    const previous = tasks;
+    dispatch(setTasks(tasks.filter((task) => task.id !== taskId)));
+
     try {
       await deleteTask(taskId);
       setError('');
-      await fetchTasks();
     } catch {
+      dispatch(setTasks(previous));
       setError('Unable to delete task.');
     }
   };

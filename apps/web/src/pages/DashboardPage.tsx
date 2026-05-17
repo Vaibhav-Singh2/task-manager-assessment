@@ -24,7 +24,7 @@ export const DashboardPage = () => {
           onPriority={setPriority}
         />
         {loading ? (
-          <div className="grid gap-3">
+          <div className="grid gap-3" aria-live="polite" aria-label="Loading tasks">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
@@ -34,6 +34,7 @@ export const DashboardPage = () => {
             tasks={tasks}
             onToggleComplete={(task) => editTask(task.id, { completed: !task.completed })}
             onDelete={removeTask}
+            onEdit={editTask}
           />
         )}
       </div>
