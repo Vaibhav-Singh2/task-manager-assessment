@@ -46,15 +46,17 @@ export function CustomSelect({ value, onChange, options, icon, className, placeh
         {icon && <span className="material-symbols-outlined text-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">{icon}</span>}
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder || 'Select...'}</span>
         <span 
-          className="material-symbols-outlined text-[18px] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 text-on-surface-variant" 
-          style={{ transform: isOpen ? 'translateY(-50%) rotate(180deg)' : 'translateY(-50%)' }}
+          className={cn(
+            "material-symbols-outlined text-[18px] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 text-on-surface-variant",
+            isOpen && "rotate-180"
+          )} 
         >
           expand_more
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-full min-w-[140px] bg-surface-container-highest border border-outline-variant/20 rounded-xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute top-full left-0 mt-2 w-full min-w-35 bg-surface-container-highest border border-outline-variant/20 rounded-xl shadow-2xl z-100 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100">
           {options.map((option) => (
             <button
               key={option.value}
