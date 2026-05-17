@@ -135,4 +135,66 @@ describe('Task API', () => {
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
   });
+
+  it('paginates task results correctly', async () => {
+    const token = await registerAndLogin({
+      name: 'Page User',
+      email: 'page@example.com',
+      password: 'password123'
+    });
+
+    // Create 3 tasks
+    for (let i = 1; i <= 3; i++) {
+      await request(app)
+        .post('/api/tasks')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: `Paged Task ${i}`, priority: 'low', dueDate: `2026-12-0${i}` });
+    }
+
+    const page1 = await request(app)
+      .get('/api/tasks?page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(page1.status).toBe(200);
+    expect(page1.body.data.length).toBe(2);
+    expect(page1.body.total).toBe(3);
+
+    const page2 = await request(app)
+      .get('/api/tasks?page=2&limit=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(page2.status).toBe(200);
+    expect(page2.body.data.length).toBe(1);
+  });
+
+  it('sorts tasks by dueDate ascending and descending', async () => {
+    const token = await registerAndLogin({
+      name: 'Sort User',
+      email: 'sort@example.com',
+      password: 'password123'
+    });
+
+    await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Earlier Task', priority: 'low', dueDate: '2026-01-01' });
+
+    await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Later Task', priority: 'high', dueDate: '2026-12-31' });
+
+    const asc = await request(app)
+      .get('/api/tasks?sortBy=dueDate&sortOrder=asc')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(asc.body.data[0].title).toBe('Earlier Task');
+
+    const desc = await request(app)
+      .get('/api/tasks?sortBy=dueDate&sortOrder=desc')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(desc.body.data[0].title).toBe('Later Task');
+  });
 });
+
