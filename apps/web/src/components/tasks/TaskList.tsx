@@ -3,12 +3,16 @@ import { Task, TaskPriority } from '@/types/task';
 
 interface TaskListProps {
   tasks: Task[];
+  totalTasks: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
   onToggleComplete: (task: Task) => Promise<void>;
   onDelete: (taskId: string) => Promise<void>;
   onEdit: (taskId: string, payload: Partial<Task>) => Promise<void>;
 }
 
-export const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }: TaskListProps) => {
+export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggleComplete, onDelete, onEdit }: TaskListProps) => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   
   // Edit State
@@ -118,12 +122,20 @@ export const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }: TaskList
         
         {/* Task List Footer */}
         <div className="px-6 py-4 bg-surface-container/30 border-t border-outline-variant/10 flex items-center justify-between">
-          <p className="font-body-md text-body-md text-on-surface-variant">Showing {tasks.length} active tasks</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">Showing {Math.min((page - 1) * limit + 1, totalTasks)} to {Math.min(page * limit, totalTasks)} of {totalTasks} tasks</p>
           <div className="flex items-center gap-2">
-            <button className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded-lg transition-colors">
+            <button 
+              onClick={() => onPageChange(page - 1)} 
+              disabled={page === 1}
+              className={`p-2 rounded-lg transition-colors ${page === 1 ? 'text-on-surface-variant/30 cursor-not-allowed' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}
+            >
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
-            <button className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded-lg transition-colors">
+            <button 
+              onClick={() => onPageChange(page + 1)} 
+              disabled={page * limit >= totalTasks}
+              className={`p-2 rounded-lg transition-colors ${page * limit >= totalTasks ? 'text-on-surface-variant/30 cursor-not-allowed' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}
+            >
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>

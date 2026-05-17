@@ -5,16 +5,36 @@ interface TaskFilters {
   search: string;
   status: TaskStatusFilter;
   priority: '' | TaskPriority;
+  sortBy?: 'dueDate' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
-export const getTasks = async (filters: TaskFilters): Promise<Task[]> => {
-  const params: Record<string, string> = {};
+export interface PaginatedTasks {
+  data: Task[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const getTasks = async (filters: TaskFilters): Promise<PaginatedTasks> => {
+  const params: Record<string, string | number> = {};
   if (filters.search) params.search = filters.search;
   if (filters.status !== 'all') params.status = filters.status;
   if (filters.priority) params.priority = filters.priority;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
+  if (filters.sortOrder) params.sortOrder = filters.sortOrder;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit) params.limit = filters.limit;
 
   const response = await apiClient.get('/api/tasks', { params });
-  return response.data.data;
+  return {
+    data: response.data.data,
+    total: response.data.total,
+    page: response.data.page,
+    limit: response.data.limit,
+  };
 };
 
 export const createTask = async (payload: {

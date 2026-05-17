@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,6 +10,21 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set('search', value);
+    } else {
+      newParams.delete('search');
+    }
+    newParams.delete('page');
+    setSearchParams(newParams);
+  };
+  
+  const currentSearch = searchParams.get('search') || '';
 
   return (
     <div className="bg-background text-on-surface min-h-screen">
@@ -57,7 +72,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center gap-4 flex-1">
             <div className="relative w-full max-w-md hidden md:block">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-              <input className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Search tasks..." type="text"/>
+              <input 
+                className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
+                placeholder="Search tasks..." 
+                type="text"
+                value={currentSearch}
+                onChange={handleSearch}
+              />
             </div>
             {/* Mobile Title */}
             <h1 className="md:hidden font-headline-md text-headline-md tracking-tight text-on-surface">Stitch</h1>

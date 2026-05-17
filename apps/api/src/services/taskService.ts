@@ -8,6 +8,9 @@ interface TaskQuery {
   priority?: TaskPriority;
   search?: string;
   sortBy?: 'dueDate' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
 interface CreateTaskInput {
@@ -55,7 +58,7 @@ export const taskService = {
     return task;
   },
 
-  getTasks: async (userId: string, query: TaskQuery): Promise<ITask[]> => {
+  getTasks: async (userId: string, query: TaskQuery): Promise<{ tasks: ITask[]; total: number }> => {
     const filters: FilterQuery<ITask> = { userId };
 
     if (query.status === 'completed') {
@@ -78,8 +81,17 @@ export const taskService = {
     }
 
     const sortField = query.sortBy ?? 'dueDate';
+    const sortDir = query.sortOrder === 'desc' ? -1 : 1;
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
 
-    return TaskModel.find(filters).sort({ [sortField]: 1, createdAt: 1 });
+    const [tasks, total] = await Promise.all([
+      TaskModel.find(filters).sort({ [sortField]: sortDir, createdAt: sortDir }).skip(skip).limit(limit),
+      TaskModel.countDocuments(filters)
+    ]);
+
+    return { tasks, total };
   },
 
   updateTask: async (taskId: string, userId: string, payload: UpdateTaskInput): Promise<ITask> => {

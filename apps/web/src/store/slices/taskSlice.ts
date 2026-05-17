@@ -3,11 +3,13 @@ import { Task } from '../../types/task';
 
 interface TaskState {
   tasks: Task[];
+  totalTasks: number;
   loading: boolean;
 }
 
 const initialState: TaskState = {
   tasks: [],
+  totalTasks: 0,
   loading: false
 };
 
@@ -18,8 +20,11 @@ const taskSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    setTasks: (state, action: PayloadAction<Task[]>) => {
-      state.tasks = action.payload;
+    setTasks: (state, action: PayloadAction<{ tasks: Task[]; total?: number }>) => {
+      state.tasks = action.payload.tasks;
+      if (action.payload.total !== undefined) {
+        state.totalTasks = action.payload.total;
+      }
     }
   }
 });

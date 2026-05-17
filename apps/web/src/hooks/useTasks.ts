@@ -3,30 +3,56 @@ import { createTask, deleteTask, getTasks, updateTask } from '@/api/taskApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading, setTasks } from '@/store/slices/taskSlice';
 import { Task, TaskPriority, TaskStatusFilter } from '@/types/task';
+import { useSearchParams } from 'react-router-dom';
 
 const mergeTask = (tasks: Task[], updated: Task): Task[] => tasks.map((task) => (task.id === updated.id ? updated : task));
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();
-  const { tasks, loading } = useAppSelector((state) => state.tasks);
+  const { tasks, loading, totalTasks } = useAppSelector((state) => state.tasks);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<TaskStatusFilter>('all');
-  const [priority, setPriority] = useState<'' | TaskPriority>('');
+  const search = searchParams.get('search') || '';
+  const status = (searchParams.get('status') as TaskStatusFilter) || 'all';
+  const priority = (searchParams.get('priority') as TaskPriority | '') || '';
+  const sortBy = (searchParams.get('sortBy') as 'dueDate' | 'createdAt') || 'dueDate';
+  const sortOrder = (searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = 10;
+
   const [error, setError] = useState<string>('');
+
+  const updateParams = (updates: Record<string, string | undefined>) => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === '' || (key === 'status' && value === 'all') || (key === 'page' && value === '1')) {
+        newParams.delete(key);
+      } else {
+        newParams.set(key, value);
+      }
+    });
+    setSearchParams(newParams);
+  };
+
+  const setSearch = (s: string) => updateParams({ search: s, page: '1' });
+  const setStatus = (s: TaskStatusFilter) => updateParams({ status: s, page: '1' });
+  const setPriority = (p: TaskPriority | '') => updateParams({ priority: p, page: '1' });
+  const setSortBy = (s: 'dueDate' | 'createdAt') => updateParams({ sortBy: s, page: '1' });
+  const setSortOrder = (o: 'asc' | 'desc') => updateParams({ sortOrder: o, page: '1' });
+  const setPage = (p: number) => updateParams({ page: p.toString() });
 
   const fetchTasks = useCallback(async () => {
     dispatch(setLoading(true));
     try {
-      const taskList = await getTasks({ search, status, priority });
+      const response = await getTasks({ search, status, priority, sortBy, sortOrder, page, limit });
       setError('');
-      dispatch(setTasks(taskList));
+      dispatch(setTasks({ tasks: response.data, total: response.total }));
     } catch {
       setError('Unable to load tasks. Please try again.');
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, search, status, priority]);
+  }, [dispatch, search, status, priority, sortBy, sortOrder, page, limit]);
 
   useEffect(() => {
     void fetchTasks();
@@ -45,13 +71,13 @@ export const useTasks = () => {
       updatedAt: new Date().toISOString()
     };
 
-    dispatch(setTasks([optimistic, ...tasks]));
+    dispatch(setTasks({ tasks: [optimistic, ...tasks], total: totalTasks + 1 }));
     try {
       const created = await createTask(payload);
-      dispatch(setTasks([created, ...tasks]));
+      dispatch(setTasks({ tasks: [created, ...tasks], total: totalTasks + 1 }));
       setError('');
     } catch {
-      dispatch(setTasks(previous));
+      dispatch(setTasks({ tasks: previous, total: totalTasks }));
       setError('Unable to create task.');
     }
   };
@@ -62,33 +88,34 @@ export const useTasks = () => {
     if (!current) return;
 
     const optimisticTask: Task = { ...current, ...payload, updatedAt: new Date().toISOString() };
-    dispatch(setTasks(mergeTask(tasks, optimisticTask)));
+    dispatch(setTasks({ tasks: mergeTask(tasks, optimisticTask), total: totalTasks }));
 
     try {
       const updated = await updateTask(taskId, payload);
-      dispatch(setTasks(mergeTask(previous, updated)));
+      dispatch(setTasks({ tasks: mergeTask(previous, updated), total: totalTasks }));
       setError('');
     } catch {
-      dispatch(setTasks(previous));
+      dispatch(setTasks({ tasks: previous, total: totalTasks }));
       setError('Unable to update task.');
     }
   };
 
   const removeTask = async (taskId: string) => {
     const previous = tasks;
-    dispatch(setTasks(tasks.filter((task) => task.id !== taskId)));
+    dispatch(setTasks({ tasks: tasks.filter((task) => task.id !== taskId), total: totalTasks - 1 }));
 
     try {
       await deleteTask(taskId);
       setError('');
     } catch {
-      dispatch(setTasks(previous));
+      dispatch(setTasks({ tasks: previous, total: totalTasks }));
       setError('Unable to delete task.');
     }
   };
 
   return {
     tasks,
+    totalTasks,
     loading,
     error,
     search,
@@ -97,6 +124,13 @@ export const useTasks = () => {
     setStatus,
     priority,
     setPriority,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    page,
+    limit,
+    setPage,
     addTask,
     editTask,
     removeTask

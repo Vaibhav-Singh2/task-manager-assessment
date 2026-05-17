@@ -8,7 +8,7 @@ import { AlertBanner } from '@/components/feedback/AlertBanner';
 import { useTasks } from '@/hooks/useTasks';
 
 export const DashboardPage = () => {
-  const { tasks, loading, error, search, setSearch, status, setStatus, priority, setPriority, addTask, editTask, removeTask } = useTasks();
+  const { tasks, totalTasks, loading, error, search, setSearch, status, setStatus, priority, setPriority, sortBy, setSortBy, sortOrder, setSortOrder, page, limit, setPage, addTask, editTask, removeTask } = useTasks();
   const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
   // Derived stats for Bento Grid
@@ -79,6 +79,10 @@ export const DashboardPage = () => {
               onSearch={setSearch}
               onStatus={setStatus}
               onPriority={setPriority}
+              sortBy={sortBy}
+              onSortBy={setSortBy}
+              sortOrder={sortOrder}
+              onSortOrder={setSortOrder}
             />
           </div>
 
@@ -90,6 +94,10 @@ export const DashboardPage = () => {
           ) : (
             <TaskList
               tasks={tasks}
+              totalTasks={totalTasks}
+              page={page}
+              limit={limit}
+              onPageChange={setPage}
               onToggleComplete={(task) => editTask(task.id, { completed: !task.completed })}
               onDelete={removeTask}
               onEdit={editTask}

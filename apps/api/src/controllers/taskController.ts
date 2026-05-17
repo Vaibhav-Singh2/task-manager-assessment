@@ -29,14 +29,20 @@ export const taskController = {
   },
 
   getTasks: async (req: AuthRequest, res: Response): Promise<void> => {
-    const tasks = await taskService.getTasks(getUserId(req), {
+    const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+
+    const result = await taskService.getTasks(getUserId(req), {
       status: req.query.status as 'completed' | 'pending' | undefined,
       priority: req.query.priority as 'low' | 'medium' | 'high' | undefined,
       search: req.query.search as string | undefined,
-      sortBy: req.query.sortBy as 'dueDate' | 'createdAt' | undefined
+      sortBy: req.query.sortBy as 'dueDate' | 'createdAt' | undefined,
+      sortOrder: req.query.sortOrder as 'asc' | 'desc' | undefined,
+      page,
+      limit
     });
 
-    res.status(StatusCodes.OK).json({ success: true, data: tasks });
+    res.status(StatusCodes.OK).json({ success: true, data: result.tasks, total: result.total, page, limit });
   },
 
   updateTask: async (req: AuthRequest, res: Response): Promise<void> => {
