@@ -21,7 +21,7 @@ describe('TaskList', () => {
     const onEdit = vi.fn().mockResolvedValue(undefined);
     const onPageChange = vi.fn();
 
-    const { getByText, getByRole } = render(
+    const { getByText } = render(
       <TaskList 
         tasks={[sampleTask]} 
         totalTasks={1} 
