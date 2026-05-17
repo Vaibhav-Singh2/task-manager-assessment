@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Task, TaskPriority } from '@/types/task';
+import { CustomSelect } from '@/components/common/CustomSelect';
 
 interface TaskListProps {
   tasks: Task[];
@@ -191,17 +192,19 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                       className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">flag</span>
-                    <select
+                  <div className="flex items-center gap-2 relative z-50">
+                    <CustomSelect
                       value={priority}
-                      onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                      className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
+                      onChange={(val) => setPriority(val as TaskPriority)}
+                      options={[
+                        { value: 'low', label: 'Low' },
+                        { value: 'medium', label: 'Medium' },
+                        { value: 'high', label: 'High' }
+                      ]}
+                      icon="flag"
+                      className="w-40"
+                      buttonClassName="bg-transparent border-0 border-b border-outline-variant/30 rounded-none px-0 pl-8"
+                    />
                   </div>
                 </div>
 
