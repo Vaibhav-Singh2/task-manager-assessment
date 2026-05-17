@@ -86,22 +86,25 @@ export const DashboardPage = () => {
             />
           </div>
 
-          {loading ? (
+          {loading && tasks.length === 0 ? (
             <div className="grid gap-3" aria-live="polite">
+              <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
             </div>
           ) : (
-            <TaskList
-              tasks={tasks}
-              totalTasks={totalTasks}
-              page={page}
-              limit={limit}
-              onPageChange={setPage}
-              onToggleComplete={(task) => editTask(task.id, { completed: !task.completed })}
-              onDelete={removeTask}
-              onEdit={editTask}
-            />
+            <div className={`transition-opacity duration-300 relative ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <TaskList
+                tasks={tasks}
+                totalTasks={totalTasks}
+                page={page}
+                limit={limit}
+                onPageChange={setPage}
+                onToggleComplete={(task) => editTask(task.id, { completed: !task.completed })}
+                onDelete={removeTask}
+                onEdit={editTask}
+              />
+            </div>
           )}
         </section>
 

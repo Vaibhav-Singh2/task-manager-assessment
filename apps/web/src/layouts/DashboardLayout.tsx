@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -13,19 +13,28 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   
+  const [localSearch, setLocalSearch] = useState(searchParams.get('search') || '');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        if (localSearch) {
+          newParams.set('search', localSearch);
+        } else {
+          newParams.delete('search');
+        }
+        newParams.delete('page');
+        return newParams;
+      }, { replace: true });
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [localSearch, setSearchParams]);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const newParams = new URLSearchParams(searchParams);
-    if (value) {
-      newParams.set('search', value);
-    } else {
-      newParams.delete('search');
-    }
-    newParams.delete('page');
-    setSearchParams(newParams);
+    setLocalSearch(e.target.value);
   };
-  
-  const currentSearch = searchParams.get('search') || '';
 
   return (
     <div className="bg-background text-on-surface min-h-screen">
@@ -77,7 +86,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-lg py-2 pl-10 pr-4 text-body-md font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" 
                 placeholder="Search tasks..." 
                 type="text"
-                value={currentSearch}
+                value={localSearch}
                 onChange={handleSearch}
               />
             </div>
