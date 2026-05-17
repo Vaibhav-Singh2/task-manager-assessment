@@ -35,4 +35,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# accidental TypeScript emit in source tree
+src/**/*.js
+src/**/*.d.ts
+src/**/*.d.ts.map
+
 !.env.example

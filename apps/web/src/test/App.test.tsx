@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -8,7 +8,7 @@ import { store } from '../store/store';
 describe('App', () => {
   it('renders auth page when unauthenticated', () => {
     localStorage.clear();
-    render(
+    const { getByText } = render(
       <Provider store={store}>
         <BrowserRouter>
           <App />
@@ -16,6 +16,6 @@ describe('App', () => {
       </Provider>
     );
 
-    expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+    expect(getByText(/welcome back/i)).toBeInTheDocument();
   });
 });
