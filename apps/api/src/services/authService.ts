@@ -40,7 +40,9 @@ export const authService = {
       throw new AppError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
     }
 
-    const token = jwt.sign({ sub: user.id }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
+    const token = jwt.sign({ sub: user.id }, env.JWT_SECRET, {
+      expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn']
+    });
 
     return {
       token,

@@ -1,4 +1,4 @@
-import { FilterQuery, Types } from 'mongoose';
+import { FilterQuery, HydratedDocument, Types } from 'mongoose';
 import { StatusCodes } from 'http-status-codes';
 import { ITask, TaskModel, TaskPriority } from '../models/TaskModel.js';
 import { AppError } from '../utils/AppError.js';
@@ -25,7 +25,7 @@ interface UpdateTaskInput {
   completed?: boolean;
 }
 
-const ensureOwnership = async (taskId: string, userId: string): Promise<ITask> => {
+const ensureOwnership = async (taskId: string, userId: string): Promise<HydratedDocument<ITask>> => {
   if (!Types.ObjectId.isValid(taskId)) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Task not found');
   }

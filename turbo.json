@@ -8,13 +8,15 @@
       "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "env": ["MONGO_URI", "JWT_SECRET", "JWT_EXPIRES_IN", "CLIENT_ORIGIN"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
     },
     "test": {
       "dependsOn": ["^test"],
+      "env": ["MONGO_URI", "JWT_SECRET", "JWT_EXPIRES_IN", "CLIENT_ORIGIN"],
       "outputs": ["coverage/**"]
     },
     "dev": {
