@@ -1,4 +1,5 @@
-@import "tailwindcss/preflight";
+@import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
   color-scheme: light;
@@ -11,5 +12,3 @@ body {
   color: #111827;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-
-@tailwind utilities;
