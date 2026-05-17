@@ -82,10 +82,7 @@ export const LoginPage = () => {
             </div>
 
             <div className="space-y-base">
-              <div className="flex justify-between items-center px-1">
-                <label className="font-label-sm text-label-sm text-on-surface-variant uppercase" htmlFor="password">Password</label>
-                <a className="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors" href="#">Forgot?</a>
-              </div>
+              <label className="font-label-sm text-label-sm text-on-surface-variant uppercase ml-1" htmlFor="password">Password</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="material-symbols-outlined text-outline text-[20px]">lock</span>
@@ -115,22 +112,7 @@ export const LoginPage = () => {
             </div>
           </form>
 
-          <div className="relative py-stack-md flex items-center">
-            <div className="grow border-t border-outline-variant/20"></div>
-            <span className="shrink mx-4 font-label-sm text-label-sm text-outline uppercase">Or continue with</span>
-            <div className="grow border-t border-outline-variant/20"></div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-stack-md">
-            <button className="flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/30 py-3 rounded-lg hover:bg-surface-bright active:scale-[0.98] transition-all">
-              <img alt="Google" className="w-5 h-5 grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQk_aJ2wagaAhVRHEsmufv9266zQgvVzEF3ic0pjZV52_gzm76eJq6XgGTS7EfXMuqgtnnf6mA86Fg8HT3WL8_MWm6IBonC59LlQvW6krbNYy0IGbwW-ES1JxGJsUfH86LPKEu77CiEhee8sz94DtqIe0hUoibz8teblHDJBLvjd1bYQWXVjtHNm4VPZ5z2S_-jHPeIupvSN7Pn6B0qUUQTBMmtcRrHayS5mTNes0aoo77ptQr4A4pXf5RYq8Ba7NutvIVigzI9Ys" />
-              <span className="font-body-md text-body-md font-medium text-on-surface">Google</span>
-            </button>
-            <button className="flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/30 py-3 rounded-lg hover:bg-surface-bright active:scale-[0.98] transition-all">
-              <span className="material-symbols-outlined text-on-surface text-[20px]">terminal</span>
-              <span className="font-body-md text-body-md font-medium text-on-surface">SSO</span>
-            </button>
-          </div>
 
           <footer className="pt-stack-lg text-center">
             <p className="font-body-md text-body-md text-on-surface-variant">
