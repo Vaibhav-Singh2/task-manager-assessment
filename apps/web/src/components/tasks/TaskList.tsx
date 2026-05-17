@@ -1,9 +1,5 @@
 import { FormEvent, useState } from 'react';
 import { Task, TaskPriority } from '@/types/task';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 
 interface TaskListProps {
   tasks: Task[];
@@ -12,21 +8,17 @@ interface TaskListProps {
   onEdit: (taskId: string, payload: Partial<Task>) => Promise<void>;
 }
 
-const getPriorityBadge = (priority: string): 'low' | 'medium' | 'high' => {
-  if (priority === 'high') return 'high';
-  if (priority === 'low') return 'low';
-  return 'medium';
-};
-
 export const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }: TaskListProps) => {
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  
+  // Edit State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
 
-  const openEdit = (task: Task): void => {
-    setEditingTask(task);
+  const openDetails = (task: Task): void => {
+    setActiveTask(task);
     setTitle(task.title);
     setDescription(task.description ?? '');
     setPriority(task.priority);
@@ -35,91 +27,217 @@ export const TaskList = ({ tasks, onToggleComplete, onDelete, onEdit }: TaskList
 
   const submitEdit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-    if (!editingTask) return;
+    if (!activeTask) return;
 
-    await onEdit(editingTask.id, {
+    await onEdit(activeTask.id, {
       title,
       description: description || undefined,
       priority,
       dueDate
     });
 
-    setEditingTask(null);
+    setActiveTask(null);
   };
 
   if (tasks.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center text-[var(--color-muted)]" aria-live="polite">
-          No tasks found. Create one now.
-        </CardContent>
-      </Card>
+      <div className="bg-surface-container-low border border-outline-variant/10 rounded-xl overflow-hidden p-6 text-center">
+        <p className="text-on-surface-variant font-body-md">No tasks found. Create one now.</p>
+      </div>
     );
   }
 
   return (
     <>
-      <ul className="grid gap-3" aria-live="polite">
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <Card>
-              <CardContent className="space-y-3 pt-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className={`text-lg font-semibold ${task.completed ? 'text-slate-400 line-through' : 'text-[var(--color-foreground)]'}`}>
-                      {task.title}
-                    </h3>
-                    {task.description && <p className="mt-1 text-sm text-[var(--color-muted)]">{task.description}</p>}
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant={getPriorityBadge(task.priority)}>{task.priority}</Badge>
-                    {task.completed && <Badge variant="success">completed</Badge>}
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="text-[var(--color-muted)]">Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-                  <Button type="button" variant="outline" size="sm" aria-label={`Toggle completion for ${task.title}`} onClick={() => onToggleComplete(task)}>
-                    {task.completed ? 'Mark pending' : 'Mark complete'}
-                  </Button>
-                  <Button type="button" variant="secondary" size="sm" aria-label={`Edit ${task.title}`} onClick={() => openEdit(task)}>
-                    Edit
-                  </Button>
-                  <Button type="button" variant="destructive" size="sm" aria-label={`Delete ${task.title}`} onClick={() => onDelete(task.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </li>
-        ))}
-      </ul>
+      <div className="bg-surface-container-low border border-outline-variant/10 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-outline-variant/10 bg-surface-container/50">
+                <th className="px-6 py-4 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Task Title</th>
+                <th className="px-6 py-4 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Priority</th>
+                <th className="px-6 py-4 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Due Date</th>
+                <th className="px-6 py-4 text-right font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/5">
+              {tasks.map((task) => (
+                <tr key={task.id} className="hover:bg-surface-container-high transition-colors group cursor-pointer" onClick={() => openDetails(task)}>
+                  <td className="px-6 py-5">
+                    {task.completed ? (
+                      <div className="flex items-center gap-2 text-on-surface-variant opacity-60">
+                        <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                        <span className="font-body-md text-body-md">Done</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${task.priority === 'high' ? 'bg-error' : task.priority === 'low' ? 'bg-outline' : 'bg-primary'}`}></div>
+                        <span className={`font-body-md text-body-md ${task.priority === 'high' ? 'text-error' : 'text-on-surface'}`}>
+                          {new Date(task.dueDate) < new Date() ? 'Overdue' : 'In Progress'}
+                        </span>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-5">
+                    <div>
+                      <p className={`font-headline-md text-headline-md ${task.completed ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>{task.title}</p>
+                      {task.description && <p className="font-body-md text-body-md text-on-surface-variant text-sm truncate max-w-xs">{task.description}</p>}
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className={`px-3 py-1 rounded-full font-label-sm text-label-sm uppercase ${
+                      task.priority === 'high' ? 'bg-error-container/30 text-error' : 
+                      task.priority === 'low' ? 'bg-surface-container-high text-on-surface-variant' : 
+                      'bg-secondary-container/50 text-secondary'
+                    }`}>
+                      {task.priority}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className={`flex items-center gap-2 ${task.completed ? 'text-on-surface-variant opacity-60' : new Date(task.dueDate) < new Date() ? 'text-error' : 'text-on-surface-variant'}`}>
+                      <span className="material-symbols-outlined text-[18px]">
+                        {task.completed ? 'event_available' : new Date(task.dueDate) < new Date() ? 'warning' : 'event'}
+                      </span>
+                      <span className="font-body-md text-body-md">{new Date(task.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); openDetails(task); }} 
+                      className="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant group-hover:text-on-surface"
+                    >
+                      <span className="material-symbols-outlined">more_vert</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Task List Footer */}
+        <div className="px-6 py-4 bg-surface-container/30 border-t border-outline-variant/10 flex items-center justify-between">
+          <p className="font-body-md text-body-md text-on-surface-variant">Showing {tasks.length} active tasks</p>
+          <div className="flex items-center gap-2">
+            <button className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded-lg transition-colors">
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded-lg transition-colors">
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-      {editingTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" role="dialog" aria-modal="true" aria-label="Edit task">
-          <Card className="w-full max-w-lg">
-            <CardContent className="space-y-4 pt-5">
-              <h4 className="text-lg font-semibold">Edit Task</h4>
-              <form onSubmit={submitEdit} className="space-y-3">
-                <Input value={title} onChange={(event) => setTitle(event.target.value)} aria-label="Task title" required />
-                <Input value={description} onChange={(event) => setDescription(event.target.value)} aria-label="Task description" />
-                <select
-                  value={priority}
-                  onChange={(event) => setPriority(event.target.value as TaskPriority)}
-                  className="h-10 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
-                  aria-label="Task priority"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-                <Input value={dueDate} onChange={(event) => setDueDate(event.target.value)} type="date" aria-label="Task due date" required />
+      {/* Slide-over Detail Panel */}
+      {activeTask && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Overlay Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setActiveTask(null)}></div>
+          
+          {/* Panel Content */}
+          <div className="relative w-full max-w-2xl bg-surface border-l border-outline-variant/20 shadow-2xl h-full flex flex-col overflow-hidden">
+            {/* Panel Header */}
+            <header className="px-stack-lg py-stack-md flex items-center justify-between border-b border-outline-variant/10 bg-surface">
+              <div className="flex items-center gap-stack-sm">
+                <span className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm uppercase">
+                  {activeTask.completed ? 'COMPLETED' : 'IN PROGRESS'}
+                </span>
+                <span className="text-on-surface-variant text-label-sm font-label-sm">• {activeTask.id.slice(0, 8)}</span>
+              </div>
+              <div className="flex items-center gap-stack-sm">
+                <button className="p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant">
+                  <span className="material-symbols-outlined">share</span>
+                </button>
+                <button onClick={() => setActiveTask(null)} className="ml-2 p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </header>
+
+            {/* Panel Body Scrollable Area */}
+            <div className="flex-1 overflow-y-auto p-stack-lg custom-scrollbar space-y-stack-lg">
+              <form id="edit-task-form" onSubmit={submitEdit} className="space-y-stack-lg">
+                <section className="space-y-stack-sm">
+                  <h4 className="font-label-sm text-label-sm text-outline tracking-widest uppercase">Task Title</h4>
+                  <input 
+                    value={title} 
+                    onChange={(e) => setTitle(e.target.value)} 
+                    className="w-full bg-surface-container-highest border border-outline-variant/20 rounded-lg px-stack-md py-stack-md text-headline-md font-headline-md focus:border-inverse-primary focus:ring-1 focus:ring-inverse-primary/20 outline-none text-on-surface"
+                    required
+                  />
+                </section>
+
+                <div className="flex flex-wrap gap-gutter text-on-surface-variant">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+                    <input 
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">flag</span>
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                      className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                </div>
+
+                <section className="space-y-stack-sm">
+                  <h4 className="font-label-sm text-label-sm text-outline tracking-widest uppercase">Description</h4>
+                  <textarea 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full h-32 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-stack-md py-stack-md text-body-lg font-body-lg focus:border-inverse-primary focus:ring-1 focus:ring-inverse-primary/20 outline-none resize-none text-on-surface"
+                    placeholder="Task details..."
+                  ></textarea>
+                </section>
+                
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setEditingTask(null)}>Cancel</Button>
-                  <Button type="submit">Save changes</Button>
+                  <button type="submit" className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg font-medium hover:bg-primary transition-colors">
+                    Save Changes
+                  </button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Panel Footer Sticky Actions */}
+            <footer className="p-stack-lg border-t border-outline-variant/10 bg-surface flex items-center justify-between">
+              <button 
+                onClick={async () => {
+                  await onDelete(activeTask.id);
+                  setActiveTask(null);
+                }}
+                className="flex items-center gap-2 text-error font-medium px-4 py-3 hover:bg-error-container/10 rounded-xl transition-all active:scale-[0.97]"
+              >
+                <span className="material-symbols-outlined">delete</span>
+                Delete Task
+              </button>
+              
+              <button 
+                onClick={async () => {
+                  await onToggleComplete(activeTask);
+                  setActiveTask(null);
+                }}
+                className={`flex-1 max-w-50 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg shadow-lg hover:brightness-110 active:scale-[0.98] transition-all ${activeTask.completed ? 'bg-surface-container-high text-on-surface' : 'bg-inverse-primary text-white shadow-inverse-primary/20'}`}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  {activeTask.completed ? 'undo' : 'check_circle'}
+                </span>
+                {activeTask.completed ? 'Mark Pending' : 'Complete Task'}
+              </button>
+            </footer>
+          </div>
         </div>
       )}
     </>
