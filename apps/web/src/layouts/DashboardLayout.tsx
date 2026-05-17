@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -11,6 +11,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -47,14 +48,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <span className="material-symbols-outlined mr-3">dashboard</span>
             <span className="font-body-md text-body-md">Dashboard</span>
           </Link>
-          <a href="#" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
+          <Link to="/tasks" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
             <span className="material-symbols-outlined mr-3">checklist</span>
             <span className="font-body-md text-body-md">My Tasks</span>
-          </a>
-          <a href="#" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
+          </Link>
+          <Link to="/calendar" className="text-on-surface-variant flex items-center px-4 py-3 hover:text-on-surface hover:bg-surface-container-high transition-all duration-200">
             <span className="material-symbols-outlined mr-3">calendar_today</span>
             <span className="font-body-md text-body-md">Calendar</span>
-          </a>
+          </Link>
         </nav>
 
         <div className="border-t border-outline-variant/10 pt-stack-md flex flex-col gap-1 px-2">
@@ -85,9 +86,36 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <button className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-[0.98]">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setNotificationsOpen(!isNotificationsOpen)}
+                className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-[0.98] relative"
+              >
+                <span className="material-symbols-outlined">notifications</span>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+              </button>
+
+              {isNotificationsOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotificationsOpen(false)}></div>
+                  <div className="absolute top-12 right-0 w-80 bg-surface border border-outline-variant/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-outline-variant/10 bg-surface-container-lowest flex justify-between items-center">
+                      <h4 className="font-headline-sm text-headline-sm">Notifications</h4>
+                      <span className="font-label-sm text-label-sm bg-primary text-on-primary px-2 py-0.5 rounded-full">3 New</span>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {[1,2,3].map((i) => (
+                        <div key={i} className="px-4 py-3 border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors cursor-pointer">
+                          <p className="font-body-sm text-body-sm text-on-surface">Task <span className="font-medium text-primary">Q3 Report</span> is approaching its deadline.</p>
+                          <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">2 hours ago</p>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="w-full py-2 text-center text-primary font-label-md text-label-md hover:bg-surface-container-low transition-colors">Mark all as read</button>
+                  </div>
+                </>
+              )}
+            </div>
             <div className="h-8 w-px bg-outline-variant/20 mx-2 hidden md:block"></div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden lg:block">
@@ -113,10 +141,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
           <span className="text-[10px]">Dashboard</span>
         </button>
-        <button className="flex flex-col items-center text-on-surface-variant">
+        <Link to="/tasks" className="flex flex-col items-center text-on-surface-variant">
           <span className="material-symbols-outlined">checklist</span>
           <span className="text-[10px]">Tasks</span>
-        </button>
+        </Link>
         <button onClick={() => dispatch(logout())} className="flex flex-col items-center text-error">
           <span className="material-symbols-outlined">logout</span>
           <span className="text-[10px]">Logout</span>
