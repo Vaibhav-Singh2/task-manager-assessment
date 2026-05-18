@@ -38,6 +38,9 @@ jobs:
 
       - name: Run Tests
         run: yarn test
+        env:
+          MONGO_URI: mongodb://localhost:27017/test_db
+          JWT_SECRET: test_secret_key_for_ci_cd_pipeline
 
   # ─────────────────────────────────────────────
   # Job 2: Deploy to EC2 (via Docker Compose)
