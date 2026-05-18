@@ -199,6 +199,8 @@ The layered structure of the codebase easily permits the introduction of advance
 
 ## 8. Production Deployment & Routing Architecture
 
+**Live Application URL:** [http://ec2-13-127-200-200.ap-south-1.compute.amazonaws.com](http://ec2-13-127-200-200.ap-south-1.compute.amazonaws.com)
+
 For production environments (e.g. AWS EC2), the system employs a highly secure and optimized containerized routing topology coordinated via **Docker Compose** and **Nginx**:
 
 ```text

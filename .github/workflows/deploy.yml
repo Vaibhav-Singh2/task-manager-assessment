@@ -3,6 +3,12 @@ name: CI / CD → Deploy to EC2
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.gitattributes'
   workflow_dispatch:
 
 # Prevent concurrent deployments on the same branch.
