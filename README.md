@@ -82,6 +82,45 @@ If you prefer to run the application natively on your host machine, follow these
 
 ---
 
+## Getting Started (AWS Production Deployment & CI/CD)
+
+The application features a secure, enterprise-grade deployment strategy designed for AWS EC2, complete with a fully automated GitHub Actions CI/CD pipeline. The stack is deployed inside a unified Docker network with an internal Nginx reverse proxy. **Only ports 22 (SSH) and 80 (HTTP) need to be open to the internet.**
+
+### 1. Configure AWS EC2 Security Group
+Ensure the inbound rules on your AWS Security Group are set as follows:
+- **SSH (Port 22):** Restricted to `My IP` (or open for remote administration/GitHub runner access).
+- **HTTP (Port 80):** Open to `0.0.0.0/0` (Anywhere) for public web access.
+- **HTTPS (Port 443):** Open to `0.0.0.0/0` (Anywhere) if SSL certificates are configured.
+*(Note: Ports 5173, 4000, and 27017 do not need to be opened externally; they are secured and routed internally).*
+
+### 2. Prepare EC2 Instance (One-time Setup)
+Log into your EC2 instance via SSH and install Docker + Docker Compose:
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+sudo usermod -aG docker $USER
+```
+*Note: Log out and log back in for your user group changes to apply.*
+
+### 3. Add GitHub Repository Secrets
+Navigate to your repository on GitHub, then go to `Settings` -> `Secrets and variables` -> `Actions`. Create the following Repository Secrets:
+- `EC2_HOST`: The Public IP or Public DNS of your EC2 instance.
+- `EC2_USERNAME`: The SSH user (e.g. `ubuntu` or `ec2-user`).
+- `EC2_SSH_KEY`: The complete private key (`.pem`) used to authenticate with your EC2 instance.
+- `MONGO_URI`: Your MongoDB database connection string (e.g. MongoDB Atlas).
+- `JWT_SECRET`: A secure, cryptographically random key used to sign session tokens.
+
+### 4. Trigger Automatic Deployment
+Simply push any commit to the `main` branch:
+```bash
+git add .
+git commit -m "deploy: initial production release"
+git push origin main
+```
+The GitHub Actions workflow (`.github/workflows/deploy.yml`) will automatically kick in, test your codebase, securely push the environment variables directly on the instance, spin up the Docker Compose stack with zero-downtime, and verify the backend health!
+
+---
+
 ## Running Tests
 
 Both the frontend client and the backend API have comprehensive test suites validating CRUD operations, authentication guards, user ownership rules, routing, and filtering.

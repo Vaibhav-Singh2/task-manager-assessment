@@ -1,0 +1,130 @@
+name: CI / CD → Deploy to EC2
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Prevent concurrent deployments on the same branch.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: Quality Gate (Lint, Type-check, Test)
+  # ─────────────────────────────────────────────
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Type-check
+        run: yarn check-types
+
+      - name: Run Tests
+        run: yarn test
+
+  # ─────────────────────────────────────────────
+  # Job 2: Deploy to EC2 (via Docker Compose)
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          # Inject secrets into the EC2 environment securely
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: MONGO_URI,JWT_SECRET,VITE_API_URL
+          script: |
+            set -euo pipefail
+
+            # 1. Ensure project directory exists
+            PROJECT_DIR="~/task-manager-assessment"
+            mkdir -p $PROJECT_DIR
+            cd $PROJECT_DIR
+
+            # 2. Pull latest code from GitHub
+            # If directory is empty, clone it. Otherwise, pull.
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git fetch origin
+              git reset --hard origin/main
+            fi
+
+            # 3. Securely generate .env files from GitHub Secrets
+            echo "Creating environment files..."
+            
+            mkdir -p apps/api apps/web
+            
+            # API .env
+            cat <<EOF > apps/api/.env
+            MONGO_URI=${MONGO_URI}
+            JWT_SECRET=${JWT_SECRET}
+            PORT=4000
+            EOF
+
+            # Web .env
+            cat <<EOF > apps/web/.env
+            VITE_API_URL=${VITE_API_URL:-}
+            EOF
+
+            # 4. Build and deploy using Docker Compose
+            echo "Deploying via Docker Compose..."
+            docker compose build --build-arg VITE_API_URL="${VITE_API_URL:-}"
+            docker compose up -d
+
+            # 5. Prune dangling images to save disk space
+            docker image prune -f
+            
+      - name: Verify API Health
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            
+            # Poll health endpoint to ensure the API container is running
+            echo "Waiting for API to initialize..."
+            
+            for i in $(seq 1 12); do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/health || echo "000")
+              if [ "${STATUS}" = "200" ]; then
+                echo "✅ Backend API is reachable and healthy (attempt ${i})"
+                exit 0
+              fi
+              echo "⏳ Attempt ${i}/12 — API status ${STATUS}, retrying in 5s..."
+              sleep 5
+            done
+            
+            echo "❌ Backend API is unreachable or returned unhealthy status"
+            exit 1

@@ -194,3 +194,42 @@ The layered structure of the codebase easily permits the introduction of advance
 *   **Redis Cache Tier:** Easily pluggable in front of task fetch services to cache frequently-read collections.
 *   **Event-Driven Workers:** Long-running processes (e.g., email task reminders) can be offloaded to background message queues (BullMQ/RabbitMQ).
 *   **Relational Migration:** Layered service boundaries allow a transition from MongoDB to PostgreSQL using an ORM like Prisma or TypeORM without mutating core controller layers.
+
+---
+
+## 8. Production Deployment & Routing Architecture
+
+For production environments (e.g. AWS EC2), the system employs a highly secure and optimized containerized routing topology coordinated via **Docker Compose** and **Nginx**:
+
+```text
+               [ Public Internet (Port 80/443) ]
+                               │
+                               ▼
+        ┌──────────────────────────────────────────────┐
+        │                 EC2 Instance                 │
+        │                                              │
+        │   ┌──────────────────────────────────────┐   │
+        │   │         Nginx Web Container          │   │
+        │   │       (Serves React on Port 80)      │   │
+        │   └──────────┬────────────────────┬──────┘   │
+        │              │                    │          │
+        │              │ (static /)         │ (/api)   │
+        │              ▼                    ▼          │
+        │   ┌────────────────────┐   ┌─────────────────┐
+        │   │   React UI Files   │   │   Express API   │
+        │   │   (Static Dist)    │   │   (Port 4000)   │
+        │   └────────────────────┘   └──────┬──────────┘
+        │                                   │          │
+        │                                   ▼          │
+        │                        ┌────────────────────┐│
+        │                        │ MongoDB Collection ││
+        │                        │    (Port 27017)    ││
+        │                        └────────────────────┘│
+        └──────────────────────────────────────────────┘
+```
+
+### Key Deployment Characteristics
+*   **Unified Entrypoint Routing:** A single Nginx container listens on standard HTTP Port 80 (and optionally 443 HTTPS). It serves static frontend assets directly and acts as a **Reverse Proxy** routing all `/api/*` traffic to the backend container over internal Docker DNS (`http://api:4000`).
+*   **Firewall Isolation:** High-security posture by completely shutting down all public inbound rules on AWS except Port 22 (SSH) and Port 80/443 (HTTP/HTTPS). Ports `4000` (API) and `27017` (MongoDB) are completely shielded inside the internal Docker network.
+*   **Zero-Downtime Pipeline:** Fully integrated with GitHub Actions CI/CD workflows, facilitating safe workspace setup, environment variables injection on disk, and isolated Docker network recreation.
+
