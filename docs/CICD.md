@@ -6,7 +6,7 @@ This document provides a comprehensive overview of the automated pipeline drivin
 
 ## 1. High-Level Pipeline Architecture
 
-The CI/CD pipeline is built natively using **GitHub Actions** and acts as an automated quality assurance barrier and deployment mechanism.
+The CI/CD pipeline is built natively using **GitHub Actions** and acts as an automated quality assurance barrier, secure container build mechanism, and EC2 host deployment manager.
 
 ```text
         ┌────────────────────────────────────────────────────────┐
@@ -22,11 +22,21 @@ The CI/CD pipeline is built natively using **GitHub Actions** and acts as an aut
         │                           │ (If All Pass)              │
         │                           ▼                            │
         │   ┌────────────────────────────────────────────────┐   │
-        │   │             [2] Deployment Job                 │   │
+        │   │         [2] Build & Push to GHCR Job           │   │
+        │   │   • Set up Docker Buildx                       │   │
+        │   │   • Build API Container (apps/api/Dockerfile)  │   │
+        │   │   • Build Web Container (apps/web/Dockerfile)  │   │
+        │   │   • Push versioned & latest images to GHCR     │   │
+        │   └───────────────────────┬────────────────────────┘   │
+        │                           │ (If Images Pushed)         │
+        │                           ▼                            │
+        │   ┌────────────────────────────────────────────────┐   │
+        │   │             [3] Deployment Job                 │   │
         │   │   • SSH Connection to AWS EC2                  │   │
-        │   │   • Git Clone / Pull to Workspace              │   │
+        │   │   • Pull latest commits to host directory      │   │
         │   │   • Secure Environment Variables Injection     │   │
-        │   │   • Docker Compose Build                       │   │
+        │   │   • Authenticate EC2 Docker engine to GHCR     │   │
+        │   │   • Docker Compose Pull (pre-built images)     │   │
         │   │   • Zero-Downtime Swap (docker compose up -d)  │   │
         │   │   • Storage Pruning (docker image prune)       │   │
         │   │   • Active `/health` Verification Loop         │   │
@@ -34,9 +44,10 @@ The CI/CD pipeline is built natively using **GitHub Actions** and acts as an aut
         │                           │                            │
         │                           ▼                            │
         │   ┌────────────────────────────────────────────────┐   │
-        │   │             [3] Pipeline Summary               │   │
+        │   │             [4] Pipeline Summary               │   │
         │   │   • Always runs, even when prior jobs fail     │   │
         │   │   • Records lint/type-check/test outcomes      │   │
+        │   │   • Records Docker compile & push outcomes     │   │
         │   │   • Records deploy, Docker, and health status   │   │
         │   │   • Writes a GitHub Actions run summary table  │   │
         │   └────────────────────────────────────────────────┘   │
@@ -76,10 +87,10 @@ on:
 
 This job establishes a modern "shift-left" development strategy to guarantee that only production-grade code reaches the deployment stage.
 
-1. **Caching & Setup:** Spins up a runner on `ubuntu-latest`, configures Node.js, and leverages Yarn workspace caching for ultra-fast run times.
+1. **Caching & Setup:** Spins up a runner on `ubuntu-latest`, configures Node.js v20, and leverages Yarn workspace caching for ultra-fast run times.
 2. **Standard Quality Commands:**
-   - `yarn lint` – Enforces styling standards.
-   - `yarn check-types` – Validates static typing.
+   - `yarn lint` – Enforces styling standards across all packages.
+   - `yarn check-types` – Validates static typing with TSC.
 3. **Integration Testing Database:**
    GitHub Actions provisions an ephemeral, high-fidelity **MongoDB Service Container** running side-by-side with your test runner:
    ```yaml
@@ -93,32 +104,52 @@ This job establishes a modern "shift-left" development strategy to guarantee tha
 
 ---
 
-### Job 2: EC2 Deployment
+### Job 2: Build & Push Images
 
-Upon quality gate approval, the workflow securely accesses the AWS target instance using SSH.
+Once the quality gate is successfully cleared, the pipeline builds containerized packages and stores them securely inside the **GitHub Container Registry (GHCR)**:
+
+1. **GHCR Authentication:** Securely logs in to `ghcr.io` utilizing standard `secrets.GITHUB_TOKEN`.
+2. **Multi-Stage Optimizations:** Set up Docker Buildx configuration inside the runner to optimize layering.
+3. **API Container:** Pre-compiles the Node.js API server code (`apps/api/Dockerfile`) and publishes images tagged as:
+   - `ghcr.io/<owner>/task-manager-api:latest`
+   - `ghcr.io/<owner>/task-manager-api:<git-sha>`
+4. **Web Container:** Compiles static Vite assets, bundles them into Nginx (`apps/web/Dockerfile`), and publishes it tagged as:
+   - `ghcr.io/<owner>/task-manager-web:latest`
+   - `ghcr.io/<owner>/task-manager-web:<git-sha>`
+   *Note: Set `VITE_API_URL` to blank `""` during construction to enforce relative base endpoint routing through Nginx.*
+
+---
+
+### Job 3: EC2 Deployment
+
+Once images are successfully pushed, the workflow triggers the deploy phase on the target server.
 
 1. **SSH Connection:** Initiated using `appleboy/ssh-action@v1.0.3` via your secure `.pem` private key.
-2. **Monorepo Synchronization:** Clones the codebase (if deploying for the first time) or pulls the latest updates from `origin/main`.
+2. **Monorepo Synchronization:** Pulls the latest commits from the `main` branch to update compose files and server directories.
 3. **Secrets Injection:** Securely creates host-level environment configuration files:
-   - **API `.env`:** Writes `MONGO_URI`, `JWT_SECRET`, and internal port mapping.
-   - **Web `.env`:** Initializes `VITE_API_URL` to an empty string `""` to enforce modern relative routing via Nginx.
-4. **Orchestrations:**
+   - **API `.env`:** Writes `MONGO_URI`, `JWT_SECRET`, and port configurations.
+   - **Web `.env`:** Initializes `VITE_API_URL` to reference relative paths.
+4. **Image Pulling & Swap:**
+   Logs standard EC2 Docker client to GHCR and pulls the newly pre-built container packages:
    ```bash
-   docker compose build --build-arg VITE_API_URL=""
-   docker compose up -d
+   docker compose -f docker-compose.prod.yml pull
+   docker compose -f docker-compose.prod.yml up -d
    ```
-   Docker Compose recreates the backend, frontend, and database containers in an isolated production-network environment with zero downtime.
-5. **Disk Hygiene:** Runs `docker image prune -f` to clean up dangling layers and protect the EC2 host from running out of disk space.
+   Restarts the production system with zero downtime, using the pre-compiled images instead of local build compiles.
+5. **Disk Hygiene:** Runs `docker image prune -f` to clean up dangling build layer caches to protect host storage space.
 
-### Job 3: Pipeline Summary
+---
 
-The workflow ends with a summary job that always runs, regardless of whether the quality gate or deployment stage succeeds.
+### Job 4: Pipeline Summary
+
+The workflow ends with a summary job that always runs, regardless of whether the quality gate, container build, or deployment stage succeeds or fails.
 
 1. **Quality results:** Captures the outcome of dependency install, lint, type-check, and test steps.
-2. **Deployment results:** Captures the SSH deploy step and the post-deploy API health check.
-3. **Run summary:** Writes a table into the GitHub Actions summary panel so the final run shows what passed, what failed, and what was skipped when the pipeline crashes early.
+2. **Build results:** Records compile and push outcomes to GHCR.
+3. **Deployment results:** Captures the SSH deploy step and the post-deploy API health check.
+4. **Run summary:** Writes a beautiful, detailed markdown table into the GitHub Actions run panel showing the status of each pipeline stage (`$GITHUB_STEP_SUMMARY`).
 
-This makes the pipeline easier to audit because a failed run still ends with a readable status report instead of stopping at the first broken step.
+This makes the pipeline extremely easy to audit because a failed run still ends with a readable status report instead of stopping at the first broken step.
 
 ---
 
