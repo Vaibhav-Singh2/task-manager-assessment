@@ -124,7 +124,7 @@ Once the quality gate is successfully cleared, the pipeline builds containerized
 
 Once images are successfully pushed, the workflow triggers the deploy phase on the target server.
 
-1. **SSH Connection:** Initiated using `appleboy/ssh-action@v1.0.3` via your secure `.pem` private key.
+1. **SSH Connection:** Initiated using `appleboy/ssh-action@v1.2.0` via your secure `.pem` private key.
 2. **Monorepo Synchronization:** Pulls the latest commits from the `main` branch to update compose files and server directories.
 3. **Secrets Injection:** Securely creates host-level environment configuration files:
    - **API `.env`:** Writes `MONGO_URI`, `JWT_SECRET`, and port configurations.

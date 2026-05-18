@@ -35,8 +35,8 @@ This document outlines the engineering plan and technical milestones for develop
     *   Define base TypeScript configurations (`@repo/typescript-config`) for strict type checks.
     *   Setup root Prettier formatting rules and shared ESLint rules (`@repo/eslint-config`) to automate lint verification.
 *   **Application Bootstraps:**
-    *   Initialize standard React + Vite configuration in `apps/web`.
-    *   Bootstrap the base Express server application using TypeScript in `apps/api`.
+    *   Initialize standard React + Vite configuration in `frontend`.
+    *   Bootstrap the base Express server application using TypeScript in `backend`.
 
 ### Phase 2: Backend Core & Database API Dev
 *   **Database Integration:**

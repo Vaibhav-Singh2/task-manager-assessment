@@ -72,7 +72,7 @@ If you prefer to run the application natively on your host machine, follow these
    ```
 
 2. **Configure Environment Variables:**
-   Copy the example files and modify the values if necessary (e.g. updating `MONGO_URI` or `JWT_SECRET` in `apps/api/.env`):
+   Copy the example files and modify the values if necessary (e.g. updating `MONGO_URI` or `JWT_SECRET` in `backend/.env`):
 
    ```bash
    cp backend/.env.example backend/.env
