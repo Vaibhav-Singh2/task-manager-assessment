@@ -51,22 +51,29 @@ This repository implements a production-grade, highly secure, and visually stunn
 task-manager-assessment/
 ├── backend/                   # Node.js + Express API Server
 │   ├── src/
-│   │   ├── config/        # Database & Environment validation
-│   │   │   ├── controllers/   # Request/Response lifecycle controllers
-│   │   │   ├── middleware/    # Auth middleware, validators, error handler
-│   │   │   ├── models/        # Mongoose Database Schemas
-│   │   │   ├── routes/        # Router mappings
-│   │   │   ├── services/      # Pure business rules & database operations
-│   │   │   └── validations/   # Zod request validators
-│   │   └── tests/             # Supertest API Integration Suites
+│   │   ├── config/            # Database & Environment validation
+│   │   ├── controllers/       # Request/Response lifecycle controllers
+│   │   ├── middleware/        # Auth middleware, validators, error handler
+│   │   ├── models/            # Mongoose Database Schemas
+│   │   ├── routes/            # Router mappings
+│   │   ├── services/          # Pure business rules & database operations
+│   │   ├── types/             # Custom Express request types
+│   │   ├── utils/             # Error definitions & helper utilities
+│   │   └── validations/       # Zod request validators
+│   └── src/tests/             # Supertest API Integration Suites
 │   
 ├── frontend/                  # Vite + React Client App
 │   ├── src/
-│   │   ├── components/    # Atomic UI (TaskForms, TaskLists, Selects)
-│   │   ├── store/         # Redux Toolkit centralized data slices
-│   │   ├── types/         # TypeScript interfaces
-│   │   └── test/          # Component & Form rendering Vitest Suites
-│   └── Dockerfile         # Multi-stage production Nginx wrapper
+│   │   ├── api/               # Centralized Axios network requests
+│   │   ├── components/        # Atomic UI (TaskForms, TaskLists, Selects)
+│   │   ├── hooks/             # Business hooks (useAuth, useTasks)
+│   │   ├── layouts/           # Screen structures (Dashboard, Auth layouts)
+│   │   ├── pages/             # View pages (Dashboard, Login, Register)
+│   │   ├── store/             # Redux Toolkit centralized data slices
+│   │   ├── test/              # Component & Form rendering Vitest Suites
+│   │   ├── types/             # TypeScript interfaces
+│   │   └── utils/             # Helper utilities & client formulas
+│   └── Dockerfile             # Multi-stage production Nginx wrapper
 │
 ├── packages/                  # Shared Turborepo configurations
 │   ├── eslint-config/         # Standard Lint rules
