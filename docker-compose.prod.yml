@@ -1,8 +1,6 @@
 services:
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: ${API_IMAGE:-ghcr.io/vaibhav-singh2/task-manager-api:latest}
     container_name: task-manager-api
     restart: unless-stopped
     ports:
@@ -11,11 +9,7 @@ services:
       - apps/api/.env
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-}
+    image: ${WEB_IMAGE:-ghcr.io/vaibhav-singh2/task-manager-web:latest}
     container_name: task-manager-web
     restart: unless-stopped
     ports:
