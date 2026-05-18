@@ -17,6 +17,9 @@ COPY packages ./packages
 
 RUN yarn turbo run build --filter=api
 
+# Prune devDependencies in-place using yarn workspaces production install
+RUN yarn install --production --frozen-lockfile --ignore-scripts && yarn cache clean
+
 # Production Stage
 FROM node:20-alpine AS production
 WORKDIR /app
@@ -28,12 +31,11 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 expressjs
 
-# Copy only the compiled dist and package definition
+# Copy pruned node_modules and compiled dist from build stage
+COPY --from=build --chown=expressjs:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=expressjs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build --chown=expressjs:nodejs /app/apps/api/dist ./dist
 COPY --from=build --chown=expressjs:nodejs /app/apps/api/package.json ./
-
-# Install only production dependencies
-RUN yarn install --production --ignore-scripts --prefer-offline && yarn cache clean
 
 # Switch to the non-root user
 USER expressjs

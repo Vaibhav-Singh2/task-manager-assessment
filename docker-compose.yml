@@ -18,12 +18,10 @@ services:
     restart: unless-stopped
     ports:
       - "4000:4000"
+    env_file:
+      - apps/api/.env
     environment:
-      - PORT=4000
       - MONGO_URI=mongodb://mongo:27017/task-manager
-      - JWT_SECRET=super_secret_jwt_key_12345
-      - JWT_EXPIRES_IN=24h
-      - CLIENT_ORIGIN=http://localhost:5173
     depends_on:
       - mongo
 
@@ -37,6 +35,8 @@ services:
     restart: unless-stopped
     ports:
       - "5173:80"
+    env_file:
+      - apps/web/.env
     depends_on:
       - api
 
