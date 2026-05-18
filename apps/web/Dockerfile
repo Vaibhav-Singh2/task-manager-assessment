@@ -30,6 +30,9 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy built assets from build stage
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 
+# Add custom Nginx configuration to support SPA routing
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose port 80
 EXPOSE 80
 
