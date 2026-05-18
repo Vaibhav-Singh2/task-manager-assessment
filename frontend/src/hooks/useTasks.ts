@@ -1,9 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
 import { createTask, deleteTask, getTasks, updateTask } from '@/api/taskApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading, setTasks } from '@/store/slices/taskSlice';
 import { Task, TaskPriority, TaskStatusFilter } from '@/types/task';
 import { useSearchParams } from 'react-router-dom';
+
+interface ApiValidationError {
+  field?: string;
+  message: string;
+}
+
+interface ApiErrorResponse {
+  success: boolean;
+  message?: string;
+  errors?: ApiValidationError[];
+}
 
 const mergeTask = (tasks: Task[], updated: Task): Task[] => tasks.map((task) => (task.id === updated.id ? updated : task));
 
@@ -47,8 +59,13 @@ export const useTasks = () => {
       const response = await getTasks({ search, status, priority, sortBy, sortOrder, page, limit });
       setError('');
       dispatch(setTasks({ tasks: response.data, total: response.total }));
-    } catch {
-      setError('Unable to load tasks. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        const errorData = err.response?.data as ApiErrorResponse | undefined;
+        setError(errorData?.message || 'Unable to load tasks. Please try again.');
+      } else {
+        setError('Unable to load tasks. Please try again.');
+      }
     } finally {
       dispatch(setLoading(false));
     }
@@ -76,9 +93,21 @@ export const useTasks = () => {
       const created = await createTask(payload);
       dispatch(setTasks({ tasks: [created, ...tasks], total: totalTasks + 1 }));
       setError('');
-    } catch {
+    } catch (err: unknown) {
       dispatch(setTasks({ tasks: previous, total: totalTasks }));
-      setError('Unable to create task.');
+      if (err instanceof AxiosError) {
+        const errorData = err.response?.data as ApiErrorResponse | undefined;
+        if (errorData?.errors && errorData.errors.length > 0) {
+          const errorMessages = errorData.errors
+            .map((e: ApiValidationError) => `${e.field ? `${e.field}: ` : ''}${e.message}`)
+            .join(', ');
+          setError(errorMessages);
+        } else {
+          setError(errorData?.message || 'Unable to create task.');
+        }
+      } else {
+        setError('Unable to create task.');
+      }
     }
   };
 
@@ -94,9 +123,21 @@ export const useTasks = () => {
       const updated = await updateTask(taskId, payload);
       dispatch(setTasks({ tasks: mergeTask(previous, updated), total: totalTasks }));
       setError('');
-    } catch {
+    } catch (err: unknown) {
       dispatch(setTasks({ tasks: previous, total: totalTasks }));
-      setError('Unable to update task.');
+      if (err instanceof AxiosError) {
+        const errorData = err.response?.data as ApiErrorResponse | undefined;
+        if (errorData?.errors && errorData.errors.length > 0) {
+          const errorMessages = errorData.errors
+            .map((e: ApiValidationError) => `${e.field ? `${e.field}: ` : ''}${e.message}`)
+            .join(', ');
+          setError(errorMessages);
+        } else {
+          setError(errorData?.message || 'Unable to update task.');
+        }
+      } else {
+        setError('Unable to update task.');
+      }
     }
   };
 
@@ -107,9 +148,14 @@ export const useTasks = () => {
     try {
       await deleteTask(taskId);
       setError('');
-    } catch {
+    } catch (err: unknown) {
       dispatch(setTasks({ tasks: previous, total: totalTasks }));
-      setError('Unable to delete task.');
+      if (err instanceof AxiosError) {
+        const errorData = err.response?.data as ApiErrorResponse | undefined;
+        setError(errorData?.message || 'Unable to delete task.');
+      } else {
+        setError('Unable to delete task.');
+      }
     }
   };
 
