@@ -202,10 +202,7 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                 <span className="text-on-surface-variant text-label-sm font-label-sm">• {activeTask.id.slice(0, 8)}</span>
               </div>
               <div className="flex items-center gap-stack-sm">
-                <button className="p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant">
-                  <span className="material-symbols-outlined">share</span>
-                </button>
-                <button onClick={() => setActiveTask(null)} className="ml-2 p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface">
+                <button onClick={() => setActiveTask(null)} className="p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
@@ -224,17 +221,18 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                   />
                 </section>
 
-                <div className="flex flex-wrap gap-gutter text-on-surface-variant">
+                <div className="flex flex-wrap gap-8 text-on-surface-variant">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">calendar_today</span>
                     <input 
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none"
+                      className="bg-transparent border-b border-outline-variant/30 text-on-surface font-body-md focus:border-inverse-primary focus:ring-0 outline-none pb-px"
                     />
                   </div>
                   <div className="flex items-center gap-2 relative z-50">
+                    <span className="material-symbols-outlined text-[18px]">flag</span>
                     <CustomSelect
                       value={priority}
                       onChange={(val) => setPriority(val as TaskPriority)}
@@ -243,9 +241,8 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                         { value: 'medium', label: 'Medium' },
                         { value: 'high', label: 'High' }
                       ]}
-                      icon="flag"
-                      className="w-40"
-                      buttonClassName="bg-transparent border-0 border-b border-outline-variant/30 rounded-none px-0 pl-8"
+                      className="w-32"
+                      buttonClassName="bg-transparent border-0 border-b border-outline-variant/30 rounded-none px-0 py-0 pb-[1px] pr-6"
                     />
                   </div>
                 </div>
