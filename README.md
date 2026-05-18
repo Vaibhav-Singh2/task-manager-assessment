@@ -95,7 +95,7 @@ If you prefer to run the application natively on your host machine, follow these
 
 **Live Application:** [http://ec2-13-127-200-200.ap-south-1.compute.amazonaws.com](http://ec2-13-127-200-200.ap-south-1.compute.amazonaws.com)
 
-The application features a secure, enterprise-grade deployment strategy designed for AWS EC2, complete with a fully automated GitHub Actions CI/CD pipeline. The stack is deployed inside a unified Docker network with an internal Nginx reverse proxy. **Only ports 22 (SSH) and 80 (HTTP) need to be open to the internet.**
+The application features a secure, enterprise-grade deployment strategy designed for AWS EC2, complete with a fully automated GitHub Actions CI/CD pipeline. Production uses a Docker Compose file that starts only the API and web containers and connects them to the external MongoDB URI stored in GitHub Secrets. **Only ports 22 (SSH) and 80 (HTTP) need to be open to the internet.**
 
 ### 1. Configure AWS EC2 Security Group
 
@@ -104,7 +104,7 @@ Ensure the inbound rules on your AWS Security Group are set as follows:
 - **SSH (Port 22):** Restricted to `My IP` (or open for remote administration/GitHub runner access).
 - **HTTP (Port 80):** Open to `0.0.0.0/0` (Anywhere) for public web access.
 - **HTTPS (Port 443):** Open to `0.0.0.0/0` (Anywhere) if SSL certificates are configured.
-  _(Note: Ports 5173, 4000, and 27017 do not need to be opened externally; they are secured and routed internally)._
+   _(Note: Ports 5173 and 4000 do not need to be opened externally; the production database is external and not deployed on the EC2 host)._
 
 ### 2. Prepare EC2 Instance (One-time Setup)
 
@@ -138,7 +138,7 @@ git commit -m "deploy: initial production release"
 git push origin main
 ```
 
-The GitHub Actions workflow (`.github/workflows/deploy.yml`) will automatically kick in, test your codebase, securely push the environment variables directly on the instance, spin up the Docker Compose stack with zero-downtime, verify the backend health, and publish a final run summary showing which checks passed, failed, or were skipped.
+The GitHub Actions workflow (`.github/workflows/deploy.yml`) will automatically kick in, test your codebase, securely push the environment variables directly on the instance, spin up the production Docker Compose stack without a local MongoDB container, verify the backend health, and publish a final run summary showing which checks passed, failed, or were skipped.
 
 ---
 

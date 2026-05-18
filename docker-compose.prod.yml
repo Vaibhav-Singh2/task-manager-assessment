@@ -1,15 +1,4 @@
 services:
-  mongo:
-    image: mongo:latest
-    container_name: task-manager-mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: task-manager
-    volumes:
-      - mongo_data:/data/db
-
   api:
     build:
       context: .
@@ -20,17 +9,13 @@ services:
       - "4000:4000"
     env_file:
       - apps/api/.env
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/task-manager
-    depends_on:
-      - mongo
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        - VITE_API_URL=
+        VITE_API_URL: ${VITE_API_URL:-}
     container_name: task-manager-web
     restart: unless-stopped
     ports:
@@ -39,6 +24,3 @@ services:
       - apps/web/.env
     depends_on:
       - api
-
-volumes:
-  mongo_data:
