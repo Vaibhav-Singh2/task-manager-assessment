@@ -47,9 +47,8 @@ To streamline development and promote reuse of core configurations across fronte
 
 ```text
 task-manager-assessment/
-├── apps/
-│   ├── web/                     # React Client App (Vite)
-│   └── api/                     # Node.js + Express REST API Server
+├── backend/                     # Node.js + Express REST API Server
+├── frontend/                    # React Client App (Vite)
 ├── packages/
 │   ├── eslint-config/           # Shared ESLint configuration
 │   └── typescript-config/       # Root & workspace-specific tsconfig bases
@@ -66,7 +65,7 @@ The client side leverages a modular architecture designed to separate styling, U
 
 ### Directory Structure & Segregation
 ```text
-apps/web/
+frontend/
 ├── src/
 │   ├── api/                     # Axios instance & centralized HTTP services
 │   ├── components/              # Atomic UI components (Buttons, Inputs, Modals)
@@ -99,7 +98,7 @@ The backend application is structured around a classic layered architecture (Con
 
 ### Directory Structure & Responsibility
 ```text
-apps/api/
+backend/
 ├── src/
 │   ├── config/                  # Database connections & environment validation
 │   ├── controllers/             # Handles HTTP request/response interfaces

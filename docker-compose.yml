@@ -13,13 +13,13 @@ services:
   api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: backend/Dockerfile
     container_name: task-manager-api
     restart: unless-stopped
     ports:
       - "4000:4000"
     env_file:
-      - apps/api/.env
+      - backend/.env
     environment:
       - MONGO_URI=mongodb://mongo:27017/task-manager
     depends_on:
@@ -28,7 +28,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: frontend/Dockerfile
       args:
         - VITE_API_URL=
     container_name: task-manager-web
@@ -36,7 +36,7 @@ services:
     ports:
       - "80:80"
     env_file:
-      - apps/web/.env
+      - frontend/.env
     depends_on:
       - api
 

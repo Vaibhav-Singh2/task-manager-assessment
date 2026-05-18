@@ -11,8 +11,8 @@ Production-style full-stack task manager built in a Turborepo monorepo.
 
 ## Workspace Structure
 
-- `apps/web`: Vite frontend application
-- `apps/api`: Express REST API
+- `frontend`: Vite frontend application
+- `backend`: Express REST API
 - `packages/eslint-config`: Shared ESLint configurations
 - `packages/typescript-config`: Shared TypeScript configurations
 
@@ -32,8 +32,8 @@ This is the fastest way to run the entire stack (Database, Backend API, and Fron
    Create `.env` files from the examples:
 
    ```bash
-   cp apps/api/.env.example apps/api/.env
-   cp apps/web/.env.example apps/web/.env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
    ```
 
 2. **Build and Start all containers:**
@@ -75,8 +75,8 @@ If you prefer to run the application natively on your host machine, follow these
    Copy the example files and modify the values if necessary (e.g. updating `MONGO_URI` or `JWT_SECRET` in `apps/api/.env`):
 
    ```bash
-   cp apps/api/.env.example apps/api/.env
-   cp apps/web/.env.example apps/web/.env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
    ```
 
 3. **Run in development mode:**
@@ -154,8 +154,8 @@ yarn test
 
 You can also run tests in individual directories:
 
-- **Backend Tests:** `cd apps/api && yarn test`
-- **Frontend Tests:** `cd apps/web && yarn test`
+- **Backend Tests:** `cd backend && yarn test`
+- **Frontend Tests:** `cd frontend && yarn test`
 
 ---
 

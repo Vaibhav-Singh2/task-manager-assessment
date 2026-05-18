@@ -6,7 +6,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - apps/api/.env
+      - backend/.env
 
   web:
     image: ${WEB_IMAGE:-ghcr.io/vaibhav-singh2/task-manager-web:latest}
@@ -15,6 +15,6 @@ services:
     ports:
       - "80:80"
     env_file:
-      - apps/web/.env
+      - frontend/.env
     depends_on:
       - api

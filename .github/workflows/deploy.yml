@@ -100,7 +100,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/api/Dockerfile
+          file: backend/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ steps.prep.outputs.owner_lc }}/task-manager-api:latest
@@ -113,7 +113,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/web/Dockerfile
+          file: frontend/Dockerfile
           push: true
           build-args: |
             VITE_API_URL=
@@ -171,17 +171,17 @@ jobs:
 
             # 3. Securely generate .env files from GitHub Secrets
             echo "Creating environment files..."
-            mkdir -p apps/api apps/web
+            mkdir -p backend frontend
 
             # API .env
-            cat <<EOF > apps/api/.env
+            cat <<EOF > backend/.env
             MONGO_URI=${MONGO_URI}
             JWT_SECRET=${JWT_SECRET}
             PORT=4000
             EOF
 
             # Web .env
-            cat <<EOF > apps/web/.env
+            cat <<EOF > frontend/.env
             VITE_API_URL=${VITE_API_URL:-}
             EOF
 

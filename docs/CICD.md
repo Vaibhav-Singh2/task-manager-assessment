@@ -24,8 +24,8 @@ The CI/CD pipeline is built natively using **GitHub Actions** and acts as an aut
         │   ┌────────────────────────────────────────────────┐   │
         │   │         [2] Build & Push to GHCR Job           │   │
         │   │   • Set up Docker Buildx                       │   │
-        │   │   • Build API Container (apps/api/Dockerfile)  │   │
-        │   │   • Build Web Container (apps/web/Dockerfile)  │   │
+        │   │   • Build API Container (backend/Dockerfile)   │   │
+        │   │   • Build Web Container (frontend/Dockerfile)  │   │
         │   │   • Push versioned & latest images to GHCR     │   │
         │   └───────────────────────┬────────────────────────┘   │
         │                           │ (If Images Pushed)         │
@@ -110,10 +110,10 @@ Once the quality gate is successfully cleared, the pipeline builds containerized
 
 1. **GHCR Authentication:** Securely logs in to `ghcr.io` utilizing standard `secrets.GITHUB_TOKEN`.
 2. **Multi-Stage Optimizations:** Set up Docker Buildx configuration inside the runner to optimize layering.
-3. **API Container:** Pre-compiles the Node.js API server code (`apps/api/Dockerfile`) and publishes images tagged as:
+3. **API Container:** Pre-compiles the Node.js API server code (`backend/Dockerfile`) and publishes images tagged as:
    - `ghcr.io/<owner>/task-manager-api:latest`
    - `ghcr.io/<owner>/task-manager-api:<git-sha>`
-4. **Web Container:** Compiles static Vite assets, bundles them into Nginx (`apps/web/Dockerfile`), and publishes it tagged as:
+4. **Web Container:** Compiles static Vite assets, bundles them into Nginx (`frontend/Dockerfile`), and publishes it tagged as:
    - `ghcr.io/<owner>/task-manager-web:latest`
    - `ghcr.io/<owner>/task-manager-web:<git-sha>`
    *Note: Set `VITE_API_URL` to blank `""` during construction to enforce relative base endpoint routing through Nginx.*
