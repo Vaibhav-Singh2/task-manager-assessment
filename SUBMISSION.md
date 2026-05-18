@@ -49,10 +49,9 @@ This repository implements a production-grade, highly secure, and visually stunn
 
 ```text
 task-manager-assessment/
-├── apps/
-│   ├── api/                   # Node.js + Express API Server
-│   │   ├── src/
-│   │   │   ├── config/        # Database & Environment validation
+├── backend/                   # Node.js + Express API Server
+│   ├── src/
+│   │   ├── config/        # Database & Environment validation
 │   │   │   ├── controllers/   # Request/Response lifecycle controllers
 │   │   │   ├── middleware/    # Auth middleware, validators, error handler
 │   │   │   ├── models/        # Mongoose Database Schemas
@@ -60,14 +59,14 @@ task-manager-assessment/
 │   │   │   ├── services/      # Pure business rules & database operations
 │   │   │   └── validations/   # Zod request validators
 │   │   └── tests/             # Supertest API Integration Suites
-│   │
-│   └── web/                   # Vite + React Client App
-│       ├── src/
-│       │   ├── components/    # Atomic UI (TaskForms, TaskLists, Selects)
-│       │   ├── store/         # Redux Toolkit centralized data slices
-│       │   ├── types/         # TypeScript interfaces
-│       │   └── test/          # Component & Form rendering Vitest Suites
-│       └── Dockerfile         # Multi-stage production Nginx wrapper
+│   
+├── frontend/                  # Vite + React Client App
+│   ├── src/
+│   │   ├── components/    # Atomic UI (TaskForms, TaskLists, Selects)
+│   │   ├── store/         # Redux Toolkit centralized data slices
+│   │   ├── types/         # TypeScript interfaces
+│   │   └── test/          # Component & Form rendering Vitest Suites
+│   └── Dockerfile         # Multi-stage production Nginx wrapper
 │
 ├── packages/                  # Shared Turborepo configurations
 │   ├── eslint-config/         # Standard Lint rules
@@ -87,8 +86,8 @@ Ensures the entire workspace (MongoDB database, backend API, and React frontend)
    ```
 2. Setup base configuration files from templates:
    ```bash
-   cp apps/api/.env.example apps/api/.env
-   cp apps/web/.env.example apps/web/.env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
    ```
 3. Boot the environment:
    ```bash
@@ -109,8 +108,8 @@ Requires Node.js v20+ and Yarn v1.22.x installed on your host machine, alongside
    ```
 2. Copy environment templates:
    ```bash
-   cp apps/api/.env.example apps/api/.env
-   cp apps/web/.env.example apps/web/.env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
    ```
 3. Run the development workspace:
    ```bash
@@ -128,8 +127,8 @@ We maintain **100% pass rates** across a suite of 27 automated integration tests
 yarn test
 ```
 
-* **Target API Tests:** `cd apps/api && yarn test` (Validates controllers, JWT encryption, user database boundaries)
-* **Target Web Tests:** `cd apps/web && yarn test` (Validates React modal fields, state operations, tags parsing)
+* **Target API Tests:** `cd backend && yarn test` (Validates controllers, JWT encryption, user database boundaries)
+* **Target Web Tests:** `cd frontend && yarn test` (Validates React modal fields, state operations, tags parsing)
 
 ---
 
