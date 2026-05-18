@@ -36,8 +36,8 @@ To deliver a high-quality product within the target timelines, the feature scope
 
 ### Could Have (Bonus Scope)
 *   **Subtasks Framework:** Creating structural subtask lists with hierarchical completion percentages.
-*   **Task Tagging System:** Assigning customizable labels or tags for multi-project grouping.
-*   **Production Deployment:** Hosting the database (MongoDB Atlas), API (Railway/Render), and client app (Vercel) with public URLs.
+*   **Task Tagging System:** [COMPLETED] Assigning customizable labels or tags for multi-project grouping.
+*   **Production Deployment:** [COMPLETED] Hosting the database (External Mongo URI), API (AWS EC2 / Docker), and client app (AWS EC2 / Nginx Router) with public URLs and fully automated GitHub Actions CI/CD.
 
 ---
 
@@ -163,7 +163,7 @@ All endpoints communicate strictly via standard `application/json` payloads.
 
 #### `GET /api/tasks`
 *   **Description:** Returns authenticated user's tasks.
-*   **Query Parameters (Optional):** `status` (completed/pending), `priority` (low/medium/high), `search` (string).
+*   **Query Parameters (Optional):** `status` (completed/pending), `priority` (low/medium/high), `search` (string), `tag` (string).
 *   **Success Response (200 OK):**
     ```json
     {
@@ -176,6 +176,7 @@ All endpoints communicate strictly via standard `application/json` payloads.
           "priority": "high",
           "dueDate": "2026-05-20T00:00:00.000Z",
           "completed": false,
+          "tags": ["backend", "api"],
           "createdAt": "2026-05-17T21:00:00.000Z"
         }
       ]
@@ -190,7 +191,8 @@ All endpoints communicate strictly via standard `application/json` payloads.
       "title": "Review PRD",
       "description": "Finalize core technical criteria",
       "priority": "medium",
-      "dueDate": "2026-05-19"
+      "dueDate": "2026-05-19",
+      "tags": ["documentation", "planning"]
     }
     ```
 *   **Success Response (201 Created):**
@@ -205,6 +207,7 @@ All endpoints communicate strictly via standard `application/json` payloads.
         "priority": "medium",
         "dueDate": "2026-05-19T00:00:00.000Z",
         "completed": false,
+        "tags": ["documentation", "planning"],
         "createdAt": "2026-05-17T21:30:00.000Z"
       }
     }
@@ -215,7 +218,8 @@ All endpoints communicate strictly via standard `application/json` payloads.
 *   **Request Body:** (Supports partial updates)
     ```json
     {
-      "completed": true
+      "completed": true,
+      "tags": ["documentation", "completed"]
     }
     ```
 *   **Success Response (200 OK):**

@@ -178,6 +178,7 @@ interface ITask {
   priority: 'low' | 'medium' | 'high';
   dueDate: Date;
   completed: boolean;
+  tags: string[];                  // Task labels / categories (Max 10 tags, 30 chars each)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -185,6 +186,13 @@ interface ITask {
 
 ### Database Performance Optimization
 *   **Compounded Indexing:** The `tasks` database collection maintains a compound index on `{ userId: 1, completed: 1 }` and `{ userId: 1, dueDate: 1 }` to optimize high-volume queries generated from the user dashboard.
+
+### 6.3 Task Tag Categorization & Filtering
+*   **Search Integration:** The tags array is fully indexed. The Express backend integrates search queries directly onto the `tags` array alongside task title and description utilizing Mongoose regex matching (`{ tags: { $regex: query.search, $options: 'i' } }`).
+*   **Deterministic Color Hashing:** Rather than storing static colors, the client implements a premium deterministic HSL color-generating hashing algorithm using the tag name as the seed. This guarantees that a unique, harmonious, glassmorphic pastel badge color config (including custom border, background, and text values) is computed on-the-fly for every tag automatically:
+    *   **Background:** `hsla(hash, 50%, 25%, 0.25)`
+    *   **Text:** `hsl(hash, 75%, 85%)`
+    *   **Border:** `hsla(hash, 50%, 45%, 0.2)`
 
 ---
 

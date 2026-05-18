@@ -107,12 +107,14 @@ Before final project handoff, verify the following standards:
 
 ---
 
-## 4. Post-MVP Feature Backlog (Phase 2 Roadmap)
+## 4. Completed Bonus Features
+*   **Task Tags & Category System [Task 08 - Bonus]:** Implemented database schema updates, Zod validations, custom backend tag-filtering, global regex search integration, dynamic and deterministic HSL color configurations, elegant dashboard table badges, and detail-panel inputs. Passed all 27 frontend & backend tests perfectly!
+
+---
+
+## 5. Post-MVP Feature Backlog (Phase 3 Roadmap)
 
 The features below are queued for upcoming release phases:
-
-### Category System & Color Labels
-*   Allow users to label tasks with customizable category names (e.g., "Work", "Personal", "Urgent") with matching color accents.
 
 ### Subtask Checklist Management
 *   Add nested subtask tracking inside parent task cards, with automatic completion percentage meters.
