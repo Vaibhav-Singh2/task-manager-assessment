@@ -31,6 +31,15 @@ The CI/CD pipeline is built natively using **GitHub Actions** and acts as an aut
         │   │   • Storage Pruning (docker image prune)       │   │
         │   │   • Active `/health` Verification Loop         │   │
         │   └────────────────────────────────────────────────┘   │
+        │                           │                            │
+        │                           ▼                            │
+        │   ┌────────────────────────────────────────────────┐   │
+        │   │             [3] Pipeline Summary               │   │
+        │   │   • Always runs, even when prior jobs fail     │   │
+        │   │   • Records lint/type-check/test outcomes      │   │
+        │   │   • Records deploy, Docker, and health status   │   │
+        │   │   • Writes a GitHub Actions run summary table  │   │
+        │   └────────────────────────────────────────────────┘   │
         └────────────────────────────────────────────────────────┘
 ```
 
@@ -39,22 +48,24 @@ The CI/CD pipeline is built natively using **GitHub Actions** and acts as an aut
 ## 2. Trigger Configuration & Optimization
 
 To prevent waste of computing resources and avoid unnecessary server restarts, the pipeline employs a **strict path filter**. It will **not** trigger on commits that only contain changes to:
-*   Markdown files (`*.md`)
-*   Documentation directory (`docs/**`)
-*   Licensing and configuration text files (`.gitignore`, `.gitattributes`)
+
+- Markdown files (`*.md`)
+- Documentation directory (`docs/**`)
+- Licensing and configuration text files (`.gitignore`, `.gitattributes`)
 
 ### Configuration Snippet (`.github/workflows/deploy.yml`):
+
 ```yaml
 on:
   push:
     branches: ["main"]
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
-      - '.gitattributes'
-  workflow_dispatch:  # Permits manual triggers from the GitHub Actions UI
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".gitignore"
+      - ".gitattributes"
+  workflow_dispatch: # Permits manual triggers from the GitHub Actions UI
 ```
 
 ---
@@ -62,13 +73,14 @@ on:
 ## 3. Detailed Job Pipeline
 
 ### Job 1: Quality Gate
+
 This job establishes a modern "shift-left" development strategy to guarantee that only production-grade code reaches the deployment stage.
 
 1. **Caching & Setup:** Spins up a runner on `ubuntu-latest`, configures Node.js, and leverages Yarn workspace caching for ultra-fast run times.
 2. **Standard Quality Commands:**
-   *   `yarn lint` – Enforces styling standards.
-   *   `yarn check-types` – Validates static typing.
-3. **Integration Testing Database:** 
+   - `yarn lint` – Enforces styling standards.
+   - `yarn check-types` – Validates static typing.
+3. **Integration Testing Database:**
    GitHub Actions provisions an ephemeral, high-fidelity **MongoDB Service Container** running side-by-side with your test runner:
    ```yaml
    services:
@@ -82,13 +94,14 @@ This job establishes a modern "shift-left" development strategy to guarantee tha
 ---
 
 ### Job 2: EC2 Deployment
+
 Upon quality gate approval, the workflow securely accesses the AWS target instance using SSH.
 
 1. **SSH Connection:** Initiated using `appleboy/ssh-action@v1.0.3` via your secure `.pem` private key.
 2. **Monorepo Synchronization:** Clones the codebase (if deploying for the first time) or pulls the latest updates from `origin/main`.
 3. **Secrets Injection:** Securely creates host-level environment configuration files:
-   *   **API `.env`:** Writes `MONGO_URI`, `JWT_SECRET`, and internal port mapping.
-   *   **Web `.env`:** Initializes `VITE_API_URL` to an empty string `""` to enforce modern relative routing via Nginx.
+   - **API `.env`:** Writes `MONGO_URI`, `JWT_SECRET`, and internal port mapping.
+   - **Web `.env`:** Initializes `VITE_API_URL` to an empty string `""` to enforce modern relative routing via Nginx.
 4. **Orchestrations:**
    ```bash
    docker compose build --build-arg VITE_API_URL=""
@@ -96,6 +109,16 @@ Upon quality gate approval, the workflow securely accesses the AWS target instan
    ```
    Docker Compose recreates the backend, frontend, and database containers in an isolated production-network environment with zero downtime.
 5. **Disk Hygiene:** Runs `docker image prune -f` to clean up dangling layers and protect the EC2 host from running out of disk space.
+
+### Job 3: Pipeline Summary
+
+The workflow ends with a summary job that always runs, regardless of whether the quality gate or deployment stage succeeds.
+
+1. **Quality results:** Captures the outcome of dependency install, lint, type-check, and test steps.
+2. **Deployment results:** Captures the SSH deploy step and the post-deploy API health check.
+3. **Run summary:** Writes a table into the GitHub Actions summary panel so the final run shows what passed, what failed, and what was skipped when the pipeline crashes early.
+
+This makes the pipeline easier to audit because a failed run still ends with a readable status report instead of stopping at the first broken step.
 
 ---
 
@@ -116,7 +139,7 @@ done
 exit 1
 ```
 
-If the API fails to register a `200 OK` status after 60 seconds, the deployment step is marked as failed, warning developers of a potentially unstable runtime state.
+If the API fails to register a `200 OK` status after 60 seconds, the deployment step is marked as failed, warning developers of a potentially unstable runtime state. Even in that failure case, the final summary job still runs and records the deploy and health-check result.
 
 ---
 

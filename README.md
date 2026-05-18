@@ -138,7 +138,7 @@ git commit -m "deploy: initial production release"
 git push origin main
 ```
 
-The GitHub Actions workflow (`.github/workflows/deploy.yml`) will automatically kick in, test your codebase, securely push the environment variables directly on the instance, spin up the Docker Compose stack with zero-downtime, and verify the backend health!
+The GitHub Actions workflow (`.github/workflows/deploy.yml`) will automatically kick in, test your codebase, securely push the environment variables directly on the instance, spin up the Docker Compose stack with zero-downtime, verify the backend health, and publish a final run summary showing which checks passed, failed, or were skipped.
 
 ---
 
