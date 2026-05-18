@@ -5,14 +5,14 @@ WORKDIR /app
 
 # Enable layer caching by copying package files first
 COPY package.json yarn.lock turbo.json ./
-COPY apps/web/package.json ./apps/web/package.json
+COPY frontend/package.json ./frontend/package.json
 COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 
 RUN yarn install --frozen-lockfile
 
 # Copy the rest of the application code
-COPY apps/web ./apps/web
+COPY frontend ./frontend
 COPY packages ./packages
 
 # Inject build argument for Vite
@@ -28,10 +28,10 @@ FROM nginx:alpine AS production
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built assets from build stage
-COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+COPY --from=build /app/frontend/dist /usr/share/nginx/html
 
 # Add custom Nginx configuration to support SPA routing
-COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
