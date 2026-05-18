@@ -14,7 +14,7 @@ The application implements a classic client-server model optimized for high-perf
 │                                                        │
 │   ┌────────────────────────────────────────────────┐   │
 │   │               React Single Page App            │   │
-│   │      (Vite / Next.js Client • Tailwind CSS)    │   │
+│   │         (Vite + React Client • Tailwind CSS)   │   │
 │   └───────────────────────┬────────────────────────┘   │
 └───────────────────────────┼────────────────────────────┘
                             │ HTTPS / JSON REST API
@@ -43,17 +43,16 @@ The application implements a classic client-server model optimized for high-perf
 
 ## 2. Monorepo Organization (Turborepo)
 
-To streamline development and promote reuse of core configurations across frontend and backend boundaries, the repository is managed as a Turborepo monorepo. This allows shared typing, linting parameters, and shared styling assets to be resolved locally.
+To streamline development and promote reuse of core configurations across frontend and backend boundaries, the repository is managed as a Turborepo monorepo. This allows shared typing and linting parameters to be resolved locally.
 
 ```text
 task-manager-assessment/
 ├── apps/
-│   ├── web/                     # Next.js / React Client App
+│   ├── web/                     # React Client App (Vite)
 │   └── api/                     # Node.js + Express REST API Server
 ├── packages/
 │   ├── eslint-config/           # Shared ESLint configuration
-│   ├── typescript-config/       # Root & workspace-specific tsconfig bases
-│   └── ui/                      # Shared design system components & design tokens
+│   └── typescript-config/       # Root & workspace-specific tsconfig bases
 ├── docs/                        # Project technical documentation
 ├── package.json                 # Monorepo workspaces & global tasks config
 └── turbo.json                   # Cache orchestration & pipeline dependency graph
@@ -68,12 +67,12 @@ The client side leverages a modular architecture designed to separate styling, U
 ### Directory Structure & Segregation
 ```text
 apps/web/
-├── app/                         # Next.js App Router (Layouts & Pages)
 ├── src/
 │   ├── api/                     # Axios instance & centralized HTTP services
 │   ├── components/              # Atomic UI components (Buttons, Inputs, Modals)
 │   ├── hooks/                   # Reusable business hooks (useAuth, useTasks)
 │   ├── layouts/                 # Screen layouts (DashboardLayout, AuthLayout)
+│   ├── pages/                   # Screen views (DashboardPage, TasksPage, etc.)
 │   ├── store/                   # Redux Toolkit store (Auth and Task slices)
 │   ├── types/                   # Compile-time TypeScript interfaces
 │   └── utils/                   # Helper utilities (date formatting, validators)

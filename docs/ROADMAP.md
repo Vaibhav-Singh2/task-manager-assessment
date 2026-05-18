@@ -35,7 +35,7 @@ This document outlines the engineering plan and technical milestones for develop
     *   Define base TypeScript configurations (`@repo/typescript-config`) for strict type checks.
     *   Setup root Prettier formatting rules and shared ESLint rules (`@repo/eslint-config`) to automate lint verification.
 *   **Application Bootstraps:**
-    *   Initialize standard React + Vite configuration in `apps/web` or configure Next.js routing structures.
+    *   Initialize standard React + Vite configuration in `apps/web`.
     *   Bootstrap the base Express server application using TypeScript in `apps/api`.
 
 ### Phase 2: Backend Core & Database API Dev
@@ -53,10 +53,10 @@ This document outlines the engineering plan and technical milestones for develop
 
 ### Phase 3: Frontend Shell & Authentication Page Flow
 *   **Routing & Auth Protection:**
-    *   Setup routing layers using React Router or Next.js directory patterns.
+    *   Setup routing layers using React Router.
     *   Implement high-level Router Guards that prevent unauthenticated visitors from opening dashboard screens.
 *   **State Store Composition:**
-    *   Establish Redux Toolkit modules or React Context wrappers to store user profile states and transient access tokens.
+    *   Establish Redux Toolkit modules to store user profile states and transient access tokens.
     *   Build Axios middleware setups to dynamically attach authorization headers to client requests.
 *   **Authentication Layouts:**
     *   Code Register and Login layouts.

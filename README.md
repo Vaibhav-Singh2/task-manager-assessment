@@ -135,3 +135,14 @@ The application uses a **Monorepo Architecture** powered by Turborepo. This allo
 - **Redux Toolkit:** Manages global state (authentication and task lists), ensuring predictable state updates and avoiding prop drilling.
 - **Tailwind CSS:** Utility-first CSS provides rapid styling and a consistent design system.
 - **React Router:** Handles client-side navigation with protected route guards for authenticated areas.
+
+---
+
+## Detailed Documentation
+
+For a deeper dive into the product's architectural specifications, roadmap, and guidelines, please refer to the files in the `docs/` directory:
+
+- [**System Architecture (`docs/ARCHITECTURE.md`)**](./docs/ARCHITECTURE.md) – Detailed system overview, data flow diagrams, security practices, and monorepo structure.
+- [**Product Requirements (`docs/PRODUCT_REQUIREMENTS.md`)**](./docs/PRODUCT_REQUIREMENTS.md) – Complete user stories, feature specifications, and UX specifications.
+- [**Development Style Guide (`docs/STYLE_GUIDE.md`)**](./docs/STYLE_GUIDE.md) – Coding standards, folder structures, linting guidelines, and code conventions for both API and Web.
+- [**Project Roadmap (`docs/ROADMAP.md`)**](./docs/ROADMAP.md) – Future milestones, feature ideas, scalability plans, and expansion plans.
