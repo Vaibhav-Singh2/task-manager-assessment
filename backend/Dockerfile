@@ -5,14 +5,14 @@ WORKDIR /app
 
 # Enable layer caching by copying package files first
 COPY package.json yarn.lock turbo.json ./
-COPY apps/api/package.json ./apps/api/package.json
+COPY backend/package.json ./backend/package.json
 COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 
 RUN yarn install --frozen-lockfile
 
 # Copy source code and build
-COPY apps/api ./apps/api
+COPY backend ./backend
 COPY packages ./packages
 
 RUN yarn turbo run build --filter=api
@@ -33,9 +33,9 @@ RUN addgroup --system --gid 1001 nodejs \
 
 # Copy pruned node_modules and compiled dist from build stage
 COPY --from=build --chown=expressjs:nodejs /app/node_modules ./node_modules
-COPY --from=build --chown=expressjs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=build --chown=expressjs:nodejs /app/apps/api/dist ./dist
-COPY --from=build --chown=expressjs:nodejs /app/apps/api/package.json ./
+COPY --from=build --chown=expressjs:nodejs /app/backend/node_modules ./backend/node_modules
+COPY --from=build --chown=expressjs:nodejs /app/backend/dist ./dist
+COPY --from=build --chown=expressjs:nodejs /app/backend/package.json ./
 
 # Switch to the non-root user
 USER expressjs
