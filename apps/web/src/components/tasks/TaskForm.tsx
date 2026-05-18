@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { TaskPriority } from '@/types/task';
 
 interface TaskFormProps {
-  onSubmit: (payload: { title: string; description?: string; priority: TaskPriority; dueDate: string }) => Promise<void>;
+  onSubmit: (payload: { title: string; description?: string; priority: TaskPriority; dueDate: string; tags?: string[] }) => Promise<void>;
   onClose?: () => void;
 }
 
@@ -11,13 +11,19 @@ export const TaskForm = ({ onSubmit, onClose }: TaskFormProps) => {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [tagsString, setTagsString] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setIsSubmitting(true);
     try {
-      await onSubmit({ title, description: description || undefined, priority, dueDate });
+      const parsedTags = tagsString
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
+      await onSubmit({ title, description: description || undefined, priority, dueDate, tags: parsedTags });
     } finally {
       setIsSubmitting(false);
     }
@@ -79,6 +85,22 @@ export const TaskForm = ({ onSubmit, onClose }: TaskFormProps) => {
                     required
                   />
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">calendar_today</span>
+                </div>
+              </div>
+
+              {/* Tags Input */}
+              <div className="space-y-base">
+                <label className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest" htmlFor="task-tags">Categorization (Tags)</label>
+                <div className="relative">
+                  <input 
+                    className="w-full bg-surface-container-highest border border-outline-variant/20 rounded-lg px-stack-md py-stack-md text-body-md font-body-md focus:border-inverse-primary focus:ring-0 outline-none text-on-surface placeholder:text-on-surface-variant/40" 
+                    id="task-tags" 
+                    type="text"
+                    placeholder="e.g. backend, frontend, bug"
+                    value={tagsString}
+                    onChange={(e) => setTagsString(e.target.value)}
+                  />
+                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">label</span>
                 </div>
               </div>
             </div>

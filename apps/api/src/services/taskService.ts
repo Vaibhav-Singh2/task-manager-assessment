@@ -7,6 +7,7 @@ interface TaskQuery {
   status?: 'completed' | 'pending';
   priority?: TaskPriority;
   search?: string;
+  tag?: string;
   sortBy?: 'dueDate' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   page?: number;
@@ -18,6 +19,7 @@ interface CreateTaskInput {
   description?: string;
   priority: TaskPriority;
   dueDate: string;
+  tags?: string[];
 }
 
 interface UpdateTaskInput {
@@ -26,6 +28,7 @@ interface UpdateTaskInput {
   priority?: TaskPriority;
   dueDate?: string;
   completed?: boolean;
+  tags?: string[];
 }
 
 const ensureOwnership = async (taskId: string, userId: string): Promise<HydratedDocument<ITask>> => {
@@ -52,7 +55,8 @@ export const taskService = {
       title: payload.title,
       description: payload.description,
       priority: payload.priority,
-      dueDate: new Date(payload.dueDate)
+      dueDate: new Date(payload.dueDate),
+      tags: payload.tags ?? []
     });
 
     return task;
@@ -73,10 +77,15 @@ export const taskService = {
       filters.priority = query.priority;
     }
 
+    if (query.tag) {
+      filters.tags = query.tag;
+    }
+
     if (query.search) {
       filters.$or = [
         { title: { $regex: query.search, $options: 'i' } },
-        { description: { $regex: query.search, $options: 'i' } }
+        { description: { $regex: query.search, $options: 'i' } },
+        { tags: { $regex: query.search, $options: 'i' } }
       ];
     }
 
@@ -102,6 +111,7 @@ export const taskService = {
     if (payload.priority !== undefined) task.priority = payload.priority;
     if (payload.dueDate !== undefined) task.dueDate = new Date(payload.dueDate);
     if (payload.completed !== undefined) task.completed = payload.completed;
+    if (payload.tags !== undefined) task.tags = payload.tags;
 
     await task.save();
     return task;

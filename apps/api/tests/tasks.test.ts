@@ -120,6 +120,68 @@ describe('Task API', () => {
     expect(filtered.body.data[0].title).toMatch(/beta/i);
   });
 
+  it('supports task tags: creation, update, and search/filter', async () => {
+    const token = await registerAndLogin({
+      name: 'Tags User',
+      email: 'tags@example.com',
+      password: 'password123'
+    });
+
+    // 1. Create task with tags
+    const createResponse = await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: 'Backend Tags',
+        priority: 'high',
+        dueDate: '2026-12-01',
+        tags: ['backend', 'database']
+      });
+
+    expect(createResponse.status).toBe(201);
+    expect(createResponse.body.data.tags).toEqual(['backend', 'database']);
+
+    const taskId = createResponse.body.data.id as string;
+
+    // 2. Update tags
+    const updateResponse = await request(app)
+      .put(`/api/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ tags: ['backend', 'database', 'refactor'] });
+
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body.data.tags).toEqual(['backend', 'database', 'refactor']);
+
+    // 3. Create another task with different tags
+    await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: 'Frontend Design',
+        priority: 'medium',
+        dueDate: '2026-12-05',
+        tags: ['frontend', 'css']
+      });
+
+    // 4. Filter by tag parameter
+    const filterByTag = await request(app)
+      .get('/api/tasks?tag=frontend')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(filterByTag.status).toBe(200);
+    expect(filterByTag.body.data.length).toBe(1);
+    expect(filterByTag.body.data[0].title).toBe('Frontend Design');
+
+    // 5. Global search within tags
+    const searchByTag = await request(app)
+      .get('/api/tasks?search=database')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(searchByTag.status).toBe(200);
+    expect(searchByTag.body.data.length).toBe(1);
+    expect(searchByTag.body.data[0].title).toBe('Backend Tags');
+  });
+
   it('validates task creation payload', async () => {
     const token = await registerAndLogin({
       name: 'Validation User',

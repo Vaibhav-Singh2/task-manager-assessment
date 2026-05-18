@@ -36,6 +36,7 @@ export const taskController = {
       status: req.query.status as 'completed' | 'pending' | undefined,
       priority: req.query.priority as 'low' | 'medium' | 'high' | undefined,
       search: req.query.search as string | undefined,
+      tag: req.query.tag as string | undefined,
       sortBy: req.query.sortBy as 'dueDate' | 'createdAt' | undefined,
       sortOrder: req.query.sortOrder as 'asc' | 'desc' | undefined,
       page,

@@ -39,7 +39,35 @@ describe('TaskForm', () => {
         title: 'New Task Title',
         description: undefined,
         priority: 'high',
-        dueDate: '2026-12-31'
+        dueDate: '2026-12-31',
+        tags: []
+      });
+    });
+  });
+
+  it('submits tags correctly when comma-separated tags are entered', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<TaskForm onSubmit={onSubmit} onClose={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/define the objective/i), {
+      target: { value: 'Tags Task' }
+    });
+    fireEvent.change(screen.getByLabelText(/deadline/i), {
+      target: { value: '2026-12-31' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e.g. backend, frontend, bug/i), {
+      target: { value: '   feature,  design, frontend   ' }
+    });
+
+    fireEvent.click(screen.getByText('Save Task'));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        title: 'Tags Task',
+        description: undefined,
+        priority: 'medium',
+        dueDate: '2026-12-31',
+        tags: ['feature', 'design', 'frontend']
       });
     });
   });

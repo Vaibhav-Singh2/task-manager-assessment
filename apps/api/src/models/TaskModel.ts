@@ -10,6 +10,7 @@ export interface ITask {
   priority: TaskPriority;
   dueDate: Date;
   completed: boolean;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +22,8 @@ const taskSchema = new Schema<ITask>(
     description: { type: String, trim: true, maxlength: 500 },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium', required: true },
     dueDate: { type: Date, required: true },
-    completed: { type: Boolean, default: false }
+    completed: { type: Boolean, default: false },
+    tags: { type: [String], default: [] }
   },
   {
     timestamps: true,

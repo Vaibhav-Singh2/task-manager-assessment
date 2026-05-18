@@ -21,6 +21,21 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [tagsString, setTagsString] = useState('');
+
+  // Deterministic pastel/glassmorphic tag colors based on tag name
+  const getTagColor = (tag: string) => {
+    let hash = 0;
+    for (let i = 0; i < tag.length; i++) {
+      hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = Math.abs(hash % 360);
+    return {
+      bg: `hsla(${h}, 50%, 25%, 0.25)`,
+      text: `hsl(${h}, 75%, 85%)`,
+      border: `hsla(${h}, 50%, 45%, 0.2)`
+    };
+  };
 
   const openDetails = (task: Task): void => {
     setActiveTask(task);
@@ -28,17 +43,24 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
     setDescription(task.description ?? '');
     setPriority(task.priority);
     setDueDate(task.dueDate.slice(0, 10));
+    setTagsString(task.tags ? task.tags.join(', ') : '');
   };
 
   const submitEdit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     if (!activeTask) return;
 
+    const parsedTags = tagsString
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
     await onEdit(activeTask.id, {
       title,
       description: description || undefined,
       priority,
-      dueDate
+      dueDate,
+      tags: parsedTags
     });
 
     setActiveTask(null);
@@ -88,6 +110,26 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                     <div>
                       <p className={`font-headline-md text-headline-md ${task.completed ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>{task.title}</p>
                       {task.description && <p className="font-body-md text-body-md text-on-surface-variant text-sm truncate max-w-xs">{task.description}</p>}
+                      {task.tags && task.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {task.tags.map((tag) => {
+                            const colors = getTagColor(tag);
+                            return (
+                              <span 
+                                key={tag} 
+                                className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border transition-all hover:brightness-110"
+                                style={{
+                                  backgroundColor: colors.bg,
+                                  color: colors.text,
+                                  borderColor: colors.border
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-5">
@@ -216,6 +258,16 @@ export const TaskList = ({ tasks, totalTasks, page, limit, onPageChange, onToggl
                     className="w-full h-32 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-stack-md py-stack-md text-body-lg font-body-lg focus:border-inverse-primary focus:ring-1 focus:ring-inverse-primary/20 outline-none resize-none text-on-surface"
                     placeholder="Task details..."
                   ></textarea>
+                </section>
+
+                <section className="space-y-stack-sm">
+                  <h4 className="font-label-sm text-label-sm text-outline tracking-widest uppercase">Tags (comma-separated)</h4>
+                  <input 
+                    value={tagsString}
+                    onChange={(e) => setTagsString(e.target.value)}
+                    className="w-full bg-surface-container-highest border border-outline-variant/20 rounded-lg px-stack-md py-stack-md text-body-lg font-body-lg focus:border-inverse-primary focus:ring-1 focus:ring-inverse-primary/20 outline-none text-on-surface"
+                    placeholder="e.g. backend, database, ui"
+                  />
                 </section>
                 
                 <div className="flex justify-end gap-2">
